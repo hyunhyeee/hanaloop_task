@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { StatCard } from "@/components/dashboard/StatCard";
 import { TrendChart, BreakdownChart } from "@/components/dashboard/DashboardCharts";
+import { ProductComparisonChart } from "@/components/dashboard/ProductComparisonChart";
 import { ProductTable } from "@/components/dashboard/ProductTable";
 import { PCFDashboardSummary, ProductPCF } from "@/types/pcf";
 import { 
@@ -91,10 +92,17 @@ export default function Dashboard() {
 
       {/* Charts Section */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <ProductComparisonChart 
+          data={summary.topEmissionProducts} 
+          title="Product PCF Comparison" 
+        />
         <TrendChart 
           data={summary.monthlyTrend} 
           title="Monthly Emission Trend (Total kgCO2e)" 
         />
+      </div>
+
+      <div className="grid grid-cols-1 gap-6">
         {products.length > 0 && (
           <BreakdownChart 
             data={products[0].breakdown} 
