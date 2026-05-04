@@ -6,6 +6,8 @@ async function main() {
   console.log('Start seeding...')
 
   // Clean up existing data to avoid conflicts on re-run
+  await prisma.emissionFactorVersion.deleteMany({})
+  await prisma.emissionFactor.deleteMany({})
   await prisma.post.deleteMany({})
   await prisma.ghgEmission.deleteMany({})
   await prisma.company.deleteMany({})
@@ -58,6 +60,49 @@ async function main() {
   for (const post of posts) {
     await prisma.post.create({
       data: post
+    });
+  }
+
+  // Seed Emission Factors
+  const factors = [
+    {
+      category: 'ELECTRICITY',
+      name: '전기 (한국전력 기본값)',
+      unit: 'kgCO2e / kWh',
+      currentValue: 0.456,
+    },
+    {
+      category: 'MATERIAL',
+      name: '원소재 (플라스틱 1)',
+      unit: 'kgCO2e / kg',
+      currentValue: 2.3,
+    },
+    {
+      category: 'MATERIAL',
+      name: '원소재 (플라스틱 2)',
+      unit: 'kgCO2e / kg',
+      currentValue: 3.2,
+    },
+    {
+      category: 'TRANSPORT',
+      name: '운송 (트럭)',
+      unit: 'kgCO2e / ton-km',
+      currentValue: 3.5,
+    },
+  ];
+
+  for (const factorData of factors) {
+    await prisma.emissionFactor.create({
+      data: {
+        ...factorData,
+        versions: {
+          create: {
+            value: factorData.currentValue,
+            versionNumber: 1,
+            remarks: 'Initial system value',
+          }
+        }
+      }
     });
   }
 

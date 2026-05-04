@@ -19,12 +19,17 @@ model Company {
 }
 
 model GhgEmission {
-  id        Int      @id @default(autoincrement())
-  yearMonth String
-  source    String?
-  emissions Float
-  companyId String
-  company   Company  @relation(fields: [companyId], references: [id])
+  id              Int             @id @default(autoincrement())
+  yearMonth       String
+  source          String?         // e.g., 'Main Factory'
+  category        String?         // e.g., 'ELECTRICITY', 'MATERIAL'
+  activityValue   Float?          // Input amount (e.g., 500)
+  unit            String?         // Input unit (e.g., 'kWh')
+  emissions       Float           // Final calculated value (kgCO2e)
+  companyId       String
+  company         Company         @relation(fields: [companyId], references: [id])
+  emissionFactorId String?
+  emissionFactor  EmissionFactor? @relation(fields: [emissionFactorId], references: [id])
 }
 
 model Post {
@@ -34,4 +39,27 @@ model Post {
   company     Company  @relation(fields: [resourceUid], references: [id])
   dateTime    String
   content     String
+}
+
+model EmissionFactor {
+  id          String                  @id @default(cuid())
+  category    String                  // e.g., 'ELECTRICITY', 'MATERIAL', 'TRANSPORT'
+  name        String                  // e.g., '전기 (한국전력 기본값)'
+  unit        String                  // e.g., 'kgCO2e / kWh'
+  currentValue Float
+  versions    EmissionFactorVersion[]
+  ghgEmissions GhgEmission[]
+  createdAt   DateTime                @default(now())
+  updatedAt   DateTime                @updatedAt
+}
+
+model EmissionFactorVersion {
+  id               String         @id @default(cuid())
+  factorId         String
+  factor           EmissionFactor @relation(fields: [factorId], references: [id])
+  value            Float
+  versionNumber    Int
+  validFrom        DateTime       @default(now())
+  remarks          String?        // e.g., '2026년 환경부 고시 기준'
+  createdAt        DateTime       @default(now())
 }
