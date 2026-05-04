@@ -1,0 +1,37 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Company {
+  id        String        @id
+  name      String
+  country   String
+  emissions GhgEmission[]
+  posts     Post[]
+}
+
+model GhgEmission {
+  id        Int      @id @default(autoincrement())
+  yearMonth String
+  source    String?
+  emissions Float
+  companyId String
+  company   Company  @relation(fields: [companyId], references: [id])
+}
+
+model Post {
+  id          String   @id
+  title       String
+  resourceUid String
+  company     Company  @relation(fields: [resourceUid], references: [id])
+  dateTime    String
+  content     String
+}
