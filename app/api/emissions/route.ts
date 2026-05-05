@@ -64,3 +64,57 @@ export async function PATCH(request: Request) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
+
+export async function POST(request: Request) {
+  try {
+    const { action } = await request.json();
+
+    if (action !== 'reset') {
+      return NextResponse.json({ error: 'Invalid action' }, { status: 400 });
+    }
+
+    const results = await prisma.$transaction(async (tx) => {
+      const allFactors = await tx.emissionFactor.findMany();
+      const updatedFactors = [];
+
+      for (const factor of allFactors) {
+        // Find the very first version (v1)
+        const v1 = await tx.emissionFactorVersion.findFirst({
+          where: { factorId: factor.id, versionNumber: 1 },
+          orderBy: { createdAt: 'asc' }
+        });
+
+        if (v1 && factor.currentValue !== v1.value) {
+          // Update factor back to v1 value
+          const updated = await tx.emissionFactor.update({
+            where: { id: factor.id },
+            data: { currentValue: v1.value }
+          });
+
+          // Optional: Create a new version record for the reset action
+          const latestVersion = await tx.emissionFactorVersion.findFirst({
+            where: { factorId: factor.id },
+            orderBy: { versionNumber: 'desc' }
+          });
+          
+          await tx.emissionFactorVersion.create({
+            data: {
+              factorId: factor.id,
+              value: v1.value,
+              versionNumber: (latestVersion?.versionNumber || 0) + 1,
+              remarks: 'System Reset: Reverted to initial value',
+            }
+          });
+          
+          updatedFactors.push(updated);
+        }
+      }
+      return updatedFactors;
+    });
+
+    return NextResponse.json({ success: true, count: results.length });
+  } catch (error: any) {
+    console.error('Reset Factors Error:', error);
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+}

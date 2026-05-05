@@ -5,13 +5,29 @@ export async function GET() {
   try {
     const productsFromDb = await prisma.company.findMany({
       include: {
-        emissions: true
+        emissions: {
+          include: {
+            emissionFactor: true
+          }
+        }
       }
     });
 
-    const allEmissions = await prisma.ghgEmission.findMany();
+    const allEmissions = await prisma.ghgEmission.findMany({
+      include: {
+        emissionFactor: true
+      }
+    });
 
-    const totalEmissions = allEmissions.reduce((sum, e) => sum + e.emissions, 0);
+    const totalEmissions = allEmissions.reduce((sum, e) => {
+      // Calculate dynamic emissions based on current factor value if available, 
+      // otherwise fallback to stored emission value
+      const currentEmissions = e.emissionFactor && e.activityValue 
+        ? e.activityValue * e.emissionFactor.currentValue 
+        : e.emissions;
+      return sum + currentEmissions;
+    }, 0);
+    
     const avgPcf = productsFromDb.length > 0 ? totalEmissions / productsFromDb.length : 0;
 
     const trendMap: Record<string, Record<string, number>> = {};
@@ -21,15 +37,20 @@ export async function GET() {
       const month = e.yearMonth;
       let cat = e.category || '기타';
       
-      // Map English DB categories to Korean labels for display
-      if (cat === 'ELECTRICITY') cat = '전기';
-      if (cat === 'MATERIAL') cat = '원자재';
+      // Map English/Old Korean DB categories to consistent Korean labels for display
+      if (cat === 'ELECTRICITY' || cat === '전력') cat = '전기';
+      if (cat === 'MATERIAL' || cat === '원소재') cat = '원자재';
       if (cat === 'TRANSPORT') cat = '운송';
       
       categoriesSet.add(cat);
       
       if (!trendMap[month]) trendMap[month] = {};
-      trendMap[month][cat] = (trendMap[month][cat] || 0) + e.emissions;
+      
+      const currentEmissions = e.emissionFactor && e.activityValue 
+        ? e.activityValue * e.emissionFactor.currentValue 
+        : e.emissions;
+        
+      trendMap[month][cat] = (trendMap[month][cat] || 0) + currentEmissions;
     });
 
     const categories = Array.from(categoriesSet);
@@ -42,7 +63,12 @@ export async function GET() {
       .sort((a, b) => a.month.localeCompare(b.month));
 
     const products = productsFromDb.map(p => {
-      const totalPcf = p.emissions.reduce((sum, e) => sum + e.emissions, 0);
+      const productEmissions = p.emissions.reduce((sum, e) => {
+        const currentEmissions = e.emissionFactor && e.activityValue 
+          ? e.activityValue * e.emissionFactor.currentValue 
+          : e.emissions;
+        return sum + currentEmissions;
+      }, 0);
       
       const breakdown: Record<string, number> = {
         '원자재': 0,
@@ -53,25 +79,44 @@ export async function GET() {
 
       p.emissions.forEach(e => {
         let cat = e.category || '기타';
-        if (cat === 'ELECTRICITY') cat = '전기';
-        if (cat === 'MATERIAL') cat = '원자재';
+        if (cat === 'ELECTRICITY' || cat === '전력') cat = '전기';
+        if (cat === 'MATERIAL' || cat === '원소재') cat = '원자재';
         if (cat === 'TRANSPORT') cat = '운송';
 
+        const currentEmissions = e.emissionFactor && e.activityValue 
+          ? e.activityValue * e.emissionFactor.currentValue 
+          : e.emissions;
+
         if (breakdown[cat] !== undefined) {
-          breakdown[cat] += e.emissions;
+          breakdown[cat] += currentEmissions;
         } else {
-          breakdown['기타'] += e.emissions;
+          breakdown['기타'] += currentEmissions;
         }
       });
+
+      // Find the dominant category for the product display
+      let dominantCategory = '기타';
+      let maxEmission = -1;
+      
+      Object.entries(breakdown).forEach(([cat, val]) => {
+        if (cat !== '기타' && val > maxEmission) {
+          maxEmission = val;
+          dominantCategory = cat;
+        }
+      });
+      
+      // If all specific categories are 0 but total is > 0, it must be '기타'
+      if (maxEmission <= 0 && productEmissions > 0) {
+        dominantCategory = '기타';
+      } else if (productEmissions === 0) {
+        dominantCategory = '일반';
+      }
 
       return {
         id: p.id,
         productName: p.name,
-        category: p.emissions[0]?.category === 'ELECTRICITY' ? '전기' : 
-                  p.emissions[0]?.category === 'MATERIAL' ? '원자재' : 
-                  p.emissions[0]?.category === 'TRANSPORT' ? '운송' : 
-                  p.emissions[0]?.category || '일반',
-        totalCo2e: Number(totalPcf.toFixed(3)),
+        category: dominantCategory,
+        totalCo2e: Number(productEmissions.toFixed(3)),
         lastUpdated: p.emissions[p.emissions.length - 1]?.yearMonth || '2025-05',
         breakdown
       };

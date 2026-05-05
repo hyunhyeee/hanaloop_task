@@ -43,6 +43,7 @@ export default function EmissionsPage() {
   const [newValue, setNewValue] = useState('');
   const [remarks, setRemarks] = useState('');
   const [isUpdating, setIsUpdating] = useState(false);
+  const [isResetting, setIsResetting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const fetchFactors = async () => {
@@ -103,6 +104,32 @@ export default function EmissionsPage() {
     }
   };
 
+  const handleReset = async () => {
+    if (!confirm('Are you sure you want to reset all factors to their initial values?')) return;
+    
+    setIsResetting(true);
+    try {
+      const response = await fetch('/api/emissions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'reset' })
+      });
+      
+      if (response.ok) {
+        await fetchFactors();
+        alert('All factors have been reset to their original values.');
+      } else {
+        const data = await response.json();
+        alert(`Reset failed: ${data.error}`);
+      }
+    } catch (err) {
+      console.error('Reset error:', err);
+      alert('An unexpected error occurred during reset.');
+    } finally {
+      setIsResetting(false);
+    }
+  };
+
   return (
     <div className="max-w-6xl mx-auto space-y-8 pb-20">
       <div className="flex justify-between items-end">
@@ -110,9 +137,18 @@ export default function EmissionsPage() {
           <h1 className="text-2xl font-bold text-zinc-900">Emission Factors</h1>
           <p className="text-zinc-500">Manage and track version history of carbon emission coefficients.</p>
         </div>
-        <button className="bg-emerald-600 text-white px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2 hover:bg-emerald-700 transition-all">
-          <Plus size={18} /> New Factor
-        </button>
+        <div className="flex gap-3">
+          <button 
+            onClick={handleReset}
+            disabled={isResetting || isLoading}
+            className="px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2 border border-zinc-200 text-zinc-600 hover:bg-zinc-50 transition-all disabled:opacity-50"
+          >
+            {isResetting ? <Loader2 size={18} className="animate-spin" /> : <Clock size={18} />} Initialize
+          </button>
+          <button className="bg-emerald-600 text-white px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2 hover:bg-emerald-700 transition-all">
+            <Plus size={18} /> New Factor
+          </button>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
