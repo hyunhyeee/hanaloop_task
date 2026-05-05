@@ -23,7 +23,7 @@ export async function GET() {
       
       // Map English DB categories to Korean labels for display
       if (cat === 'ELECTRICITY') cat = '전기';
-      if (cat === 'MATERIAL') cat = '원소재';
+      if (cat === 'MATERIAL') cat = '원자재';
       if (cat === 'TRANSPORT') cat = '운송';
       
       categoriesSet.add(cat);
@@ -45,7 +45,7 @@ export async function GET() {
       const totalPcf = p.emissions.reduce((sum, e) => sum + e.emissions, 0);
       
       const breakdown: Record<string, number> = {
-        '원소재': 0,
+        '원자재': 0,
         '전기': 0,
         '운송': 0,
         '기타': 0
@@ -54,7 +54,7 @@ export async function GET() {
       p.emissions.forEach(e => {
         let cat = e.category || '기타';
         if (cat === 'ELECTRICITY') cat = '전기';
-        if (cat === 'MATERIAL') cat = '원소재';
+        if (cat === 'MATERIAL') cat = '원자재';
         if (cat === 'TRANSPORT') cat = '운송';
 
         if (breakdown[cat] !== undefined) {
@@ -68,7 +68,7 @@ export async function GET() {
         id: p.id,
         productName: p.name,
         category: p.emissions[0]?.category === 'ELECTRICITY' ? '전기' : 
-                  p.emissions[0]?.category === 'MATERIAL' ? '원소재' : 
+                  p.emissions[0]?.category === 'MATERIAL' ? '원자재' : 
                   p.emissions[0]?.category === 'TRANSPORT' ? '운송' : 
                   p.emissions[0]?.category || '일반',
         totalCo2e: Number(totalPcf.toFixed(3)),

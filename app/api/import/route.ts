@@ -15,8 +15,8 @@ export async function POST(request: Request) {
       const processedProducts = [];
       
       for (const row of data) {
-        const rawProductName = row['설명'];
-        if (!rawProductName || String(rawProductName).trim() === '' || String(rawProductName).includes('Unknown')) {
+        const rawProductName = row['설명'] || 'Excel Item';
+        if (String(rawProductName).trim() === '' || String(rawProductName).includes('Unknown')) {
           continue; 
         }
 
@@ -34,7 +34,7 @@ export async function POST(request: Request) {
         
         if (rawDate) {
           if (typeof rawDate === 'number') {
-            // Excel serial date to JS Date
+            // Excel serial date to JS Date (Base 1900)
             const date = new Date((rawDate - 25569) * 86400 * 1000);
             const y = date.getFullYear();
             const m = String(date.getMonth() + 1).padStart(2, '0');
@@ -52,16 +52,41 @@ export async function POST(request: Request) {
           }
         }
 
-        // Match Emission Factor by '활동 유형' (Handle both spaced and non-spaced)
+        // Robust Factor Matching Logic
         const rawType = String(row['활동 유형'] || row['활동유형'] || '').trim();
-        const factor = factors.find(f => 
-          f.category === rawType || 
-          f.name.includes(rawType) ||
-          (rawType.includes('전기') && (f.category === 'ELECTRICITY' || f.category === '전력')) ||
-          (rawType.includes('전력') && (f.category === 'ELECTRICITY' || f.category === '전력')) ||
-          (rawType.includes('원소재') && (f.category === 'MATERIAL' || f.category === '원소재')) ||
-          (rawType.includes('운송') && (f.category === 'TRANSPORT' || f.category === '운송'))
+        const rawDesc = String(row['설명'] || '').trim();
+        const combined = `${rawType} ${rawDesc}`.toLowerCase();
+
+        // 1. Determine Category by Keywords
+        let targetCategory = '';
+        if (combined.includes('전기') || combined.includes('전력') || combined.includes('electricity')) {
+          targetCategory = 'ELECTRICITY';
+        } else if (combined.includes('원자재') || combined.includes('원소재') || combined.includes('플라스틱') || combined.includes('material')) {
+          targetCategory = 'MATERIAL';
+        } else if (combined.includes('운송') || combined.includes('트럭') || combined.includes('transport')) {
+          targetCategory = 'TRANSPORT';
+        }
+
+        // 2. Try to find a specific factor matching the description within that category
+        const cleanDesc = rawDesc.replace(/\s+/g, '').toLowerCase();
+        let factor = factors.find(f => 
+          f.category === targetCategory && 
+          cleanDesc !== '' && 
+          f.name.replace(/\s+/g, '').toLowerCase().includes(cleanDesc)
         );
+
+        // 3. Fallback to any factor in the category
+        if (!factor && targetCategory) {
+          factor = factors.find(f => f.category === targetCategory);
+        }
+
+        // 4. Final Fallback: Search all factors by type or description
+        if (!factor && rawType !== '') {
+          factor = factors.find(f => 
+            f.category === rawType || 
+            f.name.replace(/\s+/g, '').toLowerCase().includes(rawType.replace(/\s+/g, '').toLowerCase())
+          );
+        }
 
         const quantity = parseFloat(row['량'] || 0);
 
@@ -71,7 +96,7 @@ export async function POST(request: Request) {
           await tx.ghgEmission.create({
             data: {
               yearMonth,
-              source: String(row['설명'] || 'Excel Import'),
+              source: rawDesc || 'Excel Import',
               category: factor.category,
               activityValue: quantity,
               unit: String(row['단위'] || factor.unit.split(' / ')[1]),
