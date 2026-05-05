@@ -69,8 +69,10 @@ export interface PCFDashboardSummary {
   }[];
   monthlyTrend: {
     month: string;
-    emissions: number;
+    [key: string]: any;
   }[];
   reductionTarget: number;
   currentReduction: number;
+  categories?: string[];
+  totalBreakdown?: Record<string, number>;
 }

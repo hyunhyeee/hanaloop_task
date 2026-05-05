@@ -98,17 +98,19 @@ export default function Dashboard() {
         />
         <TrendChart 
           data={summary.monthlyTrend} 
-          categories={(summary as any).categories}
+          categories={summary.categories}
           title="Monthly Emission Trend by Activity Type" 
         />
       </div>
 
       <div className="grid grid-cols-1 gap-6">
-        {products.length > 0 && (
-          <BreakdownChart 
-            data={products[0].breakdown} 
-            title={`Lifecycle Breakdown: ${products[0].productName}`} 
-          />
+        {summary.totalBreakdown && (
+          <div className="max-w-2xl mx-auto w-full">
+            <BreakdownChart 
+              data={summary.totalBreakdown} 
+              title="Total Emission Breakdown (Company-wide)" 
+            />
+          </div>
         )}
       </div>
 

@@ -62,6 +62,30 @@ export async function GET() {
       }))
       .sort((a, b) => a.month.localeCompare(b.month));
 
+    const totalBreakdown: Record<string, number> = {
+      '원자재': 0,
+      '전기': 0,
+      '운송': 0,
+      '기타': 0
+    };
+
+    allEmissions.forEach(e => {
+      let cat = e.category || '기타';
+      if (cat === 'ELECTRICITY' || cat === '전력') cat = '전기';
+      if (cat === 'MATERIAL' || cat === '원소재') cat = '원자재';
+      if (cat === 'TRANSPORT') cat = '운송';
+
+      const currentEmissions = e.emissionFactor && e.activityValue 
+        ? e.activityValue * e.emissionFactor.currentValue 
+        : e.emissions;
+
+      if (totalBreakdown[cat] !== undefined) {
+        totalBreakdown[cat] += currentEmissions;
+      } else {
+        totalBreakdown['기타'] += currentEmissions;
+      }
+    });
+
     const products = productsFromDb.map(p => {
       const productEmissions = p.emissions.reduce((sum, e) => {
         const currentEmissions = e.emissionFactor && e.activityValue 
@@ -127,6 +151,7 @@ export async function GET() {
       reductionTarget: 15,
       currentReduction: 8.4,
       categories,
+      totalBreakdown,
       monthlyTrend: monthlyTrend.length > 0 ? monthlyTrend : [{ month: '2025-05', total: 0 }],
       topEmissionProducts: products
         .sort((a, b) => b.totalCo2e - a.totalCo2e)

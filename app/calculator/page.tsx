@@ -220,9 +220,9 @@ export default function CalculatorPage() {
                     <div className={`p-2 rounded-lg shadow-sm mb-3 transition-colors ${
                       selectedFactor === f.id ? 'bg-white' : 'bg-zinc-100 group-hover:bg-white'
                     }`}>
-                      {f.category === 'ELECTRICITY' && <Zap size={18} className="text-amber-500" />}
-                      {f.category === 'TRANSPORT' && <Truck size={18} className="text-blue-500" />}
-                      {f.category === 'MATERIAL' && <Package size={18} className="text-emerald-500" />}
+                      {(f.category === 'ELECTRICITY' || f.category === '전력' || f.category === '전기') && <Zap size={18} className="text-amber-500" />}
+                      {(f.category === 'TRANSPORT' || f.category === '운송') && <Truck size={18} className="text-blue-500" />}
+                      {(f.category === 'MATERIAL' || f.category === '원소재' || f.category === '원자재') && <Package size={18} className="text-emerald-500" />}
                     </div>
                     <p className="text-xs font-black text-zinc-900 line-clamp-1">{f.name}</p>
                     <p className="text-[10px] font-bold text-zinc-400 mt-1 uppercase tracking-tight">{f.unit}</p>
