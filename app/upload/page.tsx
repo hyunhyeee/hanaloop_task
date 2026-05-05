@@ -30,45 +30,53 @@ export default function UploadPage() {
   const [isSyncing, setIsSyncing] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   
+  const [isDeleting, setIsDeleting] = useState(false);
+  
   // Persistent activity data fetched from DB
   const [persistentData, setPersistentData] = useState<any[]>([]);
 
   // Fetch existing data on mount
-  useEffect(() => {
-    async function fetchExistingData() {
-      try {
-        const response = await fetch('/api/dashboard');
-        const data = await response.json();
-        if (response.ok) {
-          // Extract all emission records from all products
-          const allEmissions: any[] = [];
-          data.products.forEach((p: any) => {
-            // In a real app, you'd have an endpoint to list all raw emission records
-            // Here we'll simulate by creating rows from the products' data if needed
-            // But let's assume we want to show the specific activity data
-          });
-          
-          // For now, let's keep the user's specific mock data plus what's in the DB if we had a dedicated list API
-          // Since we don't have a 'list all emissions' API yet, I'll mock the persistent view 
-          // but in a way that feels 'persistent' by using localStorage for the demo if DB is empty
-          const saved = localStorage.getItem('pcf_persistent_data');
-          if (saved) {
-            setPersistentData(JSON.parse(saved));
-          } else {
-            const initial = [
-              { 일자: '2025-01-01', '활동 유형': '전기', 설명: '한국전력', 량: 110, 단위: 'kWh' },
-              { 일자: '2025-02-01', '활동 유형': '전기', 설명: '한국전력', 량: 112, 단위: 'kWh' }
-            ];
-            setPersistentData(initial);
-            localStorage.setItem('pcf_persistent_data', JSON.stringify(initial));
-          }
-        }
-      } catch (err) {
-        console.error('Failed to fetch persistent data');
+  const fetchExistingData = async () => {
+    try {
+      const response = await fetch('/api/dashboard');
+      const data = await response.json();
+      if (response.ok) {
+        // We can use products list to show some activity if needed, 
+        // but for the history view, we might need a separate endpoint.
+        // For now, let's keep the mock/local logic but fix the UI trigger.
       }
+    } catch (err) {
+      console.error('Failed to fetch persistent data');
     }
+  };
+
+  useEffect(() => {
     fetchExistingData();
+    const saved = localStorage.getItem('pcf_persistent_data');
+    if (saved) {
+      setPersistentData(JSON.parse(saved));
+    }
   }, []);
+
+  const handleClearAllData = async () => {
+    if (!confirm('정말로 모든 업로드 데이터를 삭제하시겠습니까? 이 작업은 되돌릴 수 없으며, 기초 수치(배출계수)는 유지됩니다.')) {
+      return;
+    }
+
+    setIsDeleting(true);
+    try {
+      const response = await fetch('/api/import/clear', { method: 'DELETE' });
+      if (!response.ok) throw new Error('Failed to delete data from server');
+      
+      localStorage.removeItem('pcf_persistent_data');
+      setPersistentData([]);
+      alert('모든 데이터가 성공적으로 삭제되었습니다.');
+    } catch (err: any) {
+      alert('삭제 중 오류가 발생했습니다: ' + err.message);
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
   const handleImport = async () => {
     if (previewData.length === 0) return;
@@ -294,10 +302,12 @@ export default function UploadPage() {
                 <p className="text-xs text-zinc-500 mt-1">Showing all persistent records from your repository.</p>
               </div>
               <button 
-                onClick={() => { localStorage.removeItem('pcf_persistent_data'); window.location.reload(); }}
-                className="text-[10px] font-bold text-zinc-400 hover:text-zinc-600 transition-colors uppercase tracking-widest"
+                onClick={handleClearAllData}
+                disabled={isDeleting || persistentData.length === 0}
+                className="text-[10px] font-bold text-zinc-400 hover:text-red-500 disabled:opacity-30 transition-colors uppercase tracking-widest flex items-center gap-1"
               >
-                Clear History
+                {isDeleting ? <Loader2 size={10} className="animate-spin" /> : null}
+                Delete All Data
               </button>
             </div>
             

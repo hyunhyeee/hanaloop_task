@@ -46,45 +46,62 @@ export default function Dashboard() {
     );
   }
 
-  if (!summary) return null;
+  const hasData = summary !== null && (products.length > 0 || summary.totalAveragePcf > 0);
+
+  const EmptyState = ({ message = "데이터를 업로드하여 수치를 확인하세요." }: { message?: string }) => (
+    <div className="flex flex-col items-center justify-center py-12 text-zinc-400 h-full">
+      <p className="text-sm font-medium italic">{message}</p>
+    </div>
+  );
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
       {/* Summary Header */}
-      <div>
-        <h1 className="text-2xl font-bold text-zinc-900">Sustainability Overview</h1>
-        <p className="text-zinc-500">Real-time performance tracked from your database.</p>
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-zinc-900">Sustainability Overview</h1>
+          <p className="text-zinc-500">Real-time performance tracked from your database.</p>
+        </div>
+        
+        {!hasData && !isLoading && (
+          <div className="bg-amber-50 border border-amber-200 rounded-lg px-4 py-3 flex items-center gap-3 text-amber-800 animate-pulse">
+            <AlertTriangle size={20} className="shrink-0" />
+            <p className="text-sm font-medium">
+              표시할 데이터가 없습니다. <a href="/upload" className="underline font-bold hover:text-amber-900">데이터 업로드</a> 페이지에서 PCF 데이터를 등록해 주세요.
+            </p>
+          </div>
+        )}
       </div>
 
       {/* Stat Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatCard 
           title="Avg. Product PCF" 
-          value={summary.totalAveragePcf} 
-          unit="kgCO2e" 
-          change={-2.4} 
+          value={hasData ? summary!.totalAveragePcf : "-"} 
+          unit={hasData ? "kgCO2e" : ""} 
+          change={hasData ? -2.4 : undefined} 
           icon={Leaf} 
           color="bg-emerald-500" 
         />
         <StatCard 
           title="Reduction Target" 
-          value={summary.reductionTarget} 
-          unit="%" 
+          value={hasData ? summary!.reductionTarget : "-"} 
+          unit={hasData ? "%" : ""} 
           icon={Target} 
           color="bg-blue-500" 
         />
         <StatCard 
           title="Current Reduction" 
-          value={summary.currentReduction} 
-          unit="%" 
-          change={1.2} 
+          value={hasData ? summary!.currentReduction : "-"} 
+          unit={hasData ? "%" : ""} 
+          change={hasData ? 1.2 : undefined} 
           icon={Activity} 
           color="bg-indigo-500" 
         />
         <StatCard 
           title="Total Products" 
-          value={products.length} 
-          unit="Items" 
+          value={hasData ? products.length : "-"} 
+          unit={hasData ? "Items" : ""} 
           icon={AlertTriangle} 
           color="bg-amber-500" 
         />
@@ -92,30 +109,56 @@ export default function Dashboard() {
 
       {/* Charts Section */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <ProductComparisonChart 
-          data={summary.topEmissionProducts} 
-          title="Product PCF Comparison" 
-        />
-        <TrendChart 
-          data={summary.monthlyTrend} 
-          categories={summary.categories}
-          title="Monthly Emission Trend by Activity Type" 
-        />
+        <div className="bg-white p-6 rounded-xl border border-zinc-200 shadow-sm h-[450px] flex flex-col">
+          <h3 className="text-lg font-bold mb-6 text-zinc-900">Product PCF Comparison</h3>
+          {!hasData ? <EmptyState /> : (
+            <ProductComparisonChart 
+              data={summary!.topEmissionProducts} 
+              title="" 
+            />
+          )}
+        </div>
+        <div className="bg-white p-6 rounded-xl border border-zinc-200 shadow-sm h-[450px] flex flex-col">
+          <h3 className="text-lg font-bold mb-6 text-zinc-900">Monthly Emission Trend</h3>
+          {!hasData ? <EmptyState /> : (
+            <TrendChart 
+              data={summary!.monthlyTrend} 
+              categories={summary!.categories}
+              title="" 
+            />
+          )}
+        </div>
       </div>
 
       <div className="grid grid-cols-1 gap-6">
-        {summary.totalBreakdown && (
-          <div className="max-w-2xl mx-auto w-full">
-            <BreakdownChart 
-              data={summary.totalBreakdown} 
-              title="Total Emission Breakdown (Company-wide)" 
-            />
-          </div>
-        )}
+        <div className="bg-white p-6 rounded-xl border border-zinc-200 shadow-sm min-h-[400px] flex flex-col">
+          <h3 className="text-lg font-bold mb-6 text-zinc-900">Total Emission Breakdown (Company-wide)</h3>
+          {!hasData ? <EmptyState /> : (
+            summary?.totalBreakdown && (
+              <div className="max-w-2xl mx-auto w-full">
+                <BreakdownChart 
+                  data={summary.totalBreakdown} 
+                  title="" 
+                />
+              </div>
+            )
+          )}
+        </div>
       </div>
 
       {/* Product Table */}
-      <ProductTable products={products} />
+      {!hasData ? (
+        <div className="bg-white rounded-xl border border-zinc-200 shadow-sm overflow-hidden">
+          <div className="p-6 border-b border-zinc-100">
+            <h3 className="text-lg font-bold text-zinc-900">Product PCF Inventory</h3>
+          </div>
+          <div className="py-20 flex justify-center">
+            <EmptyState message="등록된 제품 데이터가 없습니다. CSV 또는 Excel 파일을 업로드하세요." />
+          </div>
+        </div>
+      ) : (
+        <ProductTable products={products} />
+      )}
     </div>
   );
 }

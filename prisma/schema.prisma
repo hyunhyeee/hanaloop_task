@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -14,22 +11,72 @@ model Company {
   id        String        @id
   name      String
   country   String
-  products  Product[]
   emissions GhgEmission[]
   posts     Post[]
+  products  Product[]
 }
 
 model Product {
-  id          String        @id @default(cuid())
-  name        String
-  sku         String?
-  category    String?
-  unit        String?       // e.g., 'kg', 'm2', 'piece'
-  companyId   String
-  company     Company       @relation(fields: [companyId], references: [id])
-  emissions   GhgEmission[]
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
+  id        String        @id @default(cuid())
+  name      String
+  sku       String?
+  category  String?
+  unit      String?
+  companyId String
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+  emissions GhgEmission[]
+  company   Company       @relation(fields: [companyId], references: [id])
+}
+
+model GhgEmission {
+  id               Int             @id @default(autoincrement())
+  yearMonth        String
+  source           String?
+  emissions        Float
+  companyId        String
+  activityValue    Float?
+  category         String?
+  emissionFactorId String?
+  unit             String?
+  lifecycleStage   LifecycleStage?
+  productId        String?
+  scope            GhgScope?
+  company          Company         @relation(fields: [companyId], references: [id])
+  emissionFactor   EmissionFactor? @relation(fields: [emissionFactorId], references: [id])
+  product          Product?        @relation(fields: [productId], references: [id])
+}
+
+model Post {
+  id          String  @id
+  title       String
+  resourceUid String
+  dateTime    String
+  content     String
+  company     Company @relation(fields: [resourceUid], references: [id])
+}
+
+model EmissionFactor {
+  id           String                  @id @default(cuid())
+  category     String
+  name         String
+  unit         String
+  currentValue Float
+  createdAt    DateTime                @default(now())
+  updatedAt    DateTime                @updatedAt
+  versions     EmissionFactorVersion[]
+  ghgEmissions GhgEmission[]
+}
+
+model EmissionFactorVersion {
+  id            String         @id @default(cuid())
+  factorId      String
+  value         Float
+  versionNumber Int
+  validFrom     DateTime       @default(now())
+  remarks       String?
+  createdAt     DateTime       @default(now())
+  factor        EmissionFactor @relation(fields: [factorId], references: [id])
 }
 
 enum LifecycleStage {
@@ -44,54 +91,4 @@ enum GhgScope {
   SCOPE_1
   SCOPE_2
   SCOPE_3
-}
-
-model GhgEmission {
-  id              Int             @id @default(autoincrement())
-  yearMonth       String
-  source          String?         // e.g., 'Main Factory'
-  category        String?         // e.g., 'ELECTRICITY', 'MATERIAL'
-  scope           GhgScope?       // Scope 1, 2, 3
-  lifecycleStage  LifecycleStage? // RAW_MATERIAL, PRODUCTION, etc.
-  activityValue   Float?          // Input amount (e.g., 500)
-  unit            String?         // Input unit (e.g., 'kWh')
-  emissions       Float           // Final calculated value (kgCO2e)
-  companyId       String
-  company         Company         @relation(fields: [companyId], references: [id])
-  productId       String?         // Optional: linked to a specific product (for PCF)
-  product         Product?        @relation(fields: [productId], references: [id])
-  emissionFactorId String?
-  emissionFactor  EmissionFactor? @relation(fields: [emissionFactorId], references: [id])
-}
-
-model Post {
-  id          String   @id
-  title       String
-  resourceUid String
-  company     Company  @relation(fields: [resourceUid], references: [id])
-  dateTime    String
-  content     String
-}
-
-model EmissionFactor {
-  id          String                  @id @default(cuid())
-  category    String                  // e.g., 'ELECTRICITY', 'MATERIAL', 'TRANSPORT'
-  name        String                  // e.g., '전기 (한국전력 기본값)'
-  unit        String                  // e.g., 'kgCO2e / kWh'
-  currentValue Float
-  versions    EmissionFactorVersion[]
-  ghgEmissions GhgEmission[]
-  createdAt   DateTime                @default(now())
-  updatedAt   DateTime                @updatedAt
-}
-
-model EmissionFactorVersion {
-  id               String         @id @default(cuid())
-  factorId         String
-  factor           EmissionFactor @relation(fields: [factorId], references: [id])
-  value            Float
-  versionNumber    Int
-  validFrom        DateTime       @default(now())
-  remarks          String?        // e.g., '2026년 환경부 고시 기준'
-  createdAt        DateTime       @default(now())
 }
