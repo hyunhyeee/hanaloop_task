@@ -19,9 +19,9 @@ interface ChartProps {
   title: string;
 }
 
-const COLORS = ['#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6'];
+const COLORS = ['#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6', '#6366f1', '#ec4899'];
 
-export const TrendChart: React.FC<ChartProps> = ({ data, title }) => {
+export const TrendChart: React.FC<ChartProps & { categories?: string[] }> = ({ data, title, categories }) => {
   return (
     <div className="bg-white p-6 rounded-xl border border-zinc-200 shadow-sm h-[400px] flex flex-col">
       <h3 className="text-lg font-bold mb-6 text-zinc-900">{title}</h3>
@@ -44,7 +44,21 @@ export const TrendChart: React.FC<ChartProps> = ({ data, title }) => {
               cursor={{ fill: '#f4f4f5' }}
               contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
             />
-            <Bar dataKey="emissions" fill="#10b981" radius={[4, 4, 0, 0]} barSize={40} />
+            <Legend verticalAlign="top" align="right" iconType="circle" wrapperStyle={{ paddingBottom: '20px' }} />
+            {categories && categories.length > 0 ? (
+              categories.map((cat, index) => (
+                <Bar 
+                  key={cat} 
+                  dataKey={cat} 
+                  stackId="a" 
+                  fill={COLORS[index % COLORS.length]} 
+                  radius={index === categories.length - 1 ? [4, 4, 0, 0] : [0, 0, 0, 0]} 
+                  barSize={40} 
+                />
+              ))
+            ) : (
+              <Bar dataKey="emissions" fill="#10b981" radius={[4, 4, 0, 0]} barSize={40} />
+            )}
           </BarChart>
         </ResponsiveContainer>
       </div>

@@ -14,8 +14,36 @@ model Company {
   id        String        @id
   name      String
   country   String
+  products  Product[]
   emissions GhgEmission[]
   posts     Post[]
+}
+
+model Product {
+  id          String        @id @default(cuid())
+  name        String
+  sku         String?
+  category    String?
+  unit        String?       // e.g., 'kg', 'm2', 'piece'
+  companyId   String
+  company     Company       @relation(fields: [companyId], references: [id])
+  emissions   GhgEmission[]
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+}
+
+enum LifecycleStage {
+  RAW_MATERIAL
+  PRODUCTION
+  TRANSPORTATION
+  USE
+  DISPOSAL
+}
+
+enum GhgScope {
+  SCOPE_1
+  SCOPE_2
+  SCOPE_3
 }
 
 model GhgEmission {
@@ -23,11 +51,15 @@ model GhgEmission {
   yearMonth       String
   source          String?         // e.g., 'Main Factory'
   category        String?         // e.g., 'ELECTRICITY', 'MATERIAL'
+  scope           GhgScope?       // Scope 1, 2, 3
+  lifecycleStage  LifecycleStage? // RAW_MATERIAL, PRODUCTION, etc.
   activityValue   Float?          // Input amount (e.g., 500)
   unit            String?         // Input unit (e.g., 'kWh')
   emissions       Float           // Final calculated value (kgCO2e)
   companyId       String
   company         Company         @relation(fields: [companyId], references: [id])
+  productId       String?         // Optional: linked to a specific product (for PCF)
+  product         Product?        @relation(fields: [productId], references: [id])
   emissionFactorId String?
   emissionFactor  EmissionFactor? @relation(fields: [emissionFactorId], references: [id])
 }

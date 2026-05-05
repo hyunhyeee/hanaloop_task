@@ -17,6 +17,10 @@ async function main() {
       id: "c1",
       name: "Acme Corp",
       country: "US",
+      products: [
+        { name: "EcoWidget Alpha", sku: "EW-001", category: "Electronics", unit: "piece" },
+        { name: "SolarPane X", sku: "SP-500", category: "Energy", unit: "piece" },
+      ],
       emissions: [
         { "yearMonth": "2024-01", "emissions": 120 },
         { "yearMonth": "2024-02", "emissions": 110 },
@@ -27,6 +31,9 @@ async function main() {
       id: "c2",
       name: "Globex",
       country: "DE",
+      products: [
+        { name: "TurboGear", sku: "TG-99", category: "Machinery", unit: "piece" },
+      ],
       emissions: [
         { "yearMonth": "2024-01", "emissions": 80 },
         { "yearMonth": "2024-02", "emissions": 105 },
@@ -46,10 +53,13 @@ async function main() {
   ];
 
   for (const company of companies) {
-    const { emissions, ...companyData } = company;
+    const { emissions, products, ...companyData } = company;
     await prisma.company.create({
       data: {
         ...companyData,
+        products: {
+          create: products
+        },
         emissions: {
           create: emissions
         }

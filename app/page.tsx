@@ -98,7 +98,8 @@ export default function Dashboard() {
         />
         <TrendChart 
           data={summary.monthlyTrend} 
-          title="Monthly Emission Trend (Total kgCO2e)" 
+          categories={(summary as any).categories}
+          title="Monthly Emission Trend by Activity Type" 
         />
       </div>
 

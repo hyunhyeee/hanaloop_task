@@ -2,21 +2,22 @@
 import React from 'react';
 import { 
   LayoutDashboard, 
-  Package, 
+  BookOpen, 
   BarChart3, 
   Settings, 
   FileSpreadsheet,
-  Globe
+  Globe,
+  Calculator
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
 const menuItems = [
   { icon: LayoutDashboard, label: 'Dashboard', href: '/' },
-  { icon: Package, label: 'Products', href: '/products' },
-  { icon: BarChart3, label: 'Emissions', href: '/emissions' },
+  { icon: Calculator, label: 'PCF Calculator', href: '/calculator' },
+  { icon: BarChart3, label: 'Emission Factors', href: '/emissions' },
+  { icon: BookOpen, label: 'What is PCF?', href: '/what-is-pcf' },
   { icon: FileSpreadsheet, label: 'Data Upload', href: '/upload' },
-  { icon: Settings, label: 'Settings', href: '/settings' },
 ];
 
 export const Sidebar = () => {
