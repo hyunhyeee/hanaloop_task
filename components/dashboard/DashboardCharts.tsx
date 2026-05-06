@@ -25,7 +25,10 @@ const COLORS = ['#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6', '#6366f1'
 export const TrendChart: React.FC<ChartProps & { categories?: string[] }> = ({ data, title, categories }) => {
   return (
     <div className="bg-white p-6 rounded-xl border border-zinc-200 shadow-sm h-[400px] flex flex-col">
-      <h3 className="text-lg font-bold mb-6 text-zinc-900">{title}</h3>
+      <div className="flex justify-between items-start mb-6">
+        <h3 className="text-lg font-bold text-zinc-900">{title}</h3>
+        <span className="text-xs text-zinc-400 font-medium">(단위: kgCO2e)</span>
+      </div>
       <div className="flex-1 min-h-0">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={data}>
@@ -44,6 +47,10 @@ export const TrendChart: React.FC<ChartProps & { categories?: string[] }> = ({ d
             <Tooltip 
               cursor={{ fill: '#f4f4f5' }}
               contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+              formatter={(value: any, name: any) => [
+                Number(value || 0).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 2 }), 
+                name
+              ]}
             />
             <Legend verticalAlign="top" align="right" iconType="circle" wrapperStyle={{ paddingBottom: '20px' }} />
             {categories && categories.length > 0 ? (

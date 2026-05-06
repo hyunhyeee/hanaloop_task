@@ -12,9 +12,6 @@ export const ProductTable: React.FC<ProductTableProps> = ({ products }) => {
     <div className="bg-white rounded-xl border border-zinc-200 shadow-sm overflow-hidden">
       <div className="p-6 border-b border-zinc-100 flex justify-between items-center">
         <h3 className="text-lg font-bold text-zinc-900">제품별 PCF 인벤토리</h3>
-        <button className="text-emerald-600 text-sm font-semibold flex items-center gap-1 hover:underline">
-          전체 보기 <ArrowUpRight size={16} />
-        </button>
       </div>
       <div className="overflow-x-auto">
         <table className="w-full text-left">
@@ -61,11 +58,6 @@ export const ProductTable: React.FC<ProductTableProps> = ({ products }) => {
                 </td>
                 <td className="px-6 py-4 text-sm text-zinc-500">
                   {product.lastUpdated}
-                </td>
-                <td className="px-6 py-4 text-right">
-                  <button className="text-zinc-400 hover:text-zinc-600">
-                    <MoreHorizontal size={20} />
-                  </button>
                 </td>
               </tr>
             ))}

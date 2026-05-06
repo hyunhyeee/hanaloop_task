@@ -24,14 +24,13 @@ export const ProductComparisonChart: React.FC<ComparisonProps> = ({ data, title 
     <div className="bg-white p-6 rounded-xl border border-zinc-200 shadow-sm h-[450px] flex flex-col">
       <div className="mb-6">
         <h3 className="text-lg font-bold text-zinc-900">{title}</h3>
-        <p className="text-xs text-zinc-500">Total PCF (kgCO2e) comparison across products</p>
       </div>
       <div className="flex-1 min-h-0">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart 
             data={data} 
             layout="vertical"
-            margin={{ top: 5, right: 30, left: 40, bottom: 5 }}
+            margin={{ top: 5, right: 30, bottom: 5 }}
           >
             <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} stroke="#f0f0f0" />
             <XAxis type="number" axisLine={false} tickLine={false} tick={{ fill: '#71717a', fontSize: 11 }} />

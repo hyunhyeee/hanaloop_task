@@ -21,8 +21,6 @@ export async function GET() {
     });
 
     const totalEmissions = allEmissions.reduce((sum, e) => {
-      // Calculate dynamic emissions based on current factor value if available, 
-      // otherwise fallback to stored emission value
       const currentEmissions = e.emissionFactor && e.activityValue 
         ? e.activityValue * e.emissionFactor.currentValue 
         : e.emissions;

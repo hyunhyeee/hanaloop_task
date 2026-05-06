@@ -7,19 +7,22 @@ import { StatCard } from "@/components/dashboard/StatCard";
 import { TrendChart, BreakdownChart } from "@/components/dashboard/DashboardCharts";
 import { ProductComparisonChart } from "@/components/dashboard/ProductComparisonChart";
 import { ProductTable } from "@/components/dashboard/ProductTable";
+import { CalculationMethodology } from "@/components/dashboard/CalculationMethodology";
 import { PCFDashboardSummary, ProductPCF } from "@/types/pcf";
 import { 
   Activity, 
   Target, 
   Leaf, 
   AlertTriangle,
-  Loader2
+  Loader2,
+  Info
 } from "lucide-react";
 
 export default function Dashboard() {
   const [summary, setSummary] = useState<PCFDashboardSummary | null>(null);
   const [products, setProducts] = useState<ProductPCF[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [showMethodology, setShowMethodology] = useState(false);
 
   useEffect(() => {
     async function fetchData() {
@@ -65,14 +68,24 @@ export default function Dashboard() {
           <p className="text-zinc-500">데이터베이스에서 실시간으로 집계된 성과 지표입니다.</p>
         </div>
         
-        {!hasData && !isLoading && (
-          <div className="bg-amber-50 border border-amber-200 rounded-lg px-4 py-3 flex items-center gap-3 text-amber-800 animate-pulse">
-            <AlertTriangle size={20} className="shrink-0" />
-            <p className="text-sm font-medium">
-              표시할 데이터가 없습니다. <a href="/upload" className="underline font-bold hover:text-amber-900">데이터 업로드</a> 페이지에서 PCF 데이터를 등록해 주세요.
-            </p>
-          </div>
-        )}
+        <div className="flex items-center gap-3">
+          <button 
+            onClick={() => setShowMethodology(!showMethodology)}
+            className="flex items-center gap-2 px-4 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 rounded-xl text-sm font-bold transition-all border border-indigo-100"
+          >
+            <Info size={16} />
+            {showMethodology ? '설명서 닫기' : '산정 방법론 보기'}
+          </button>
+
+          {!hasData && !isLoading && (
+            <div className="bg-amber-50 border border-amber-200 rounded-lg px-4 py-3 flex items-center gap-3 text-amber-800 animate-pulse">
+              <AlertTriangle size={20} className="shrink-0" />
+              <p className="text-sm font-medium">
+                표시할 데이터가 없습니다. <a href="/upload" className="underline font-bold hover:text-amber-900">데이터 업로드</a> 페이지에서 PCF 데이터를 등록해 주세요.
+              </p>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Stat Cards */}
@@ -108,6 +121,9 @@ export default function Dashboard() {
           color="bg-amber-500" 
         />
       </div>
+
+      {/* Methodology Section */}
+      <CalculationMethodology isVisible={showMethodology} />
 
       {/* Charts Section */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
