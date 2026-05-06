@@ -199,20 +199,20 @@ export default function UploadPage() {
     <div className="max-w-6xl mx-auto space-y-12 pb-20 animate-in fade-in duration-500">
       <div className="flex justify-between items-end">
         <div>
-          <h1 className="text-3xl font-black text-zinc-900 tracking-tight">Data Management</h1>
-          <p className="text-zinc-500 mt-1">Upload activity records or manage existing data.</p>
+          <h1 className="text-3xl font-black text-zinc-900 tracking-tight">데이터 관리</h1>
+          <p className="text-zinc-500 mt-1">활동 기록을 업로드하거나 기존 데이터를 관리합니다.</p>
         </div>
         
         <div className="flex bg-zinc-100 p-1 rounded-xl border border-zinc-200">
-          <button onClick={() => setMode('FILE')} className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all ${mode === 'FILE' ? 'bg-white shadow-sm text-emerald-600' : 'text-zinc-500'}`}><FileSpreadsheet size={16} /> File Upload</button>
-          <button onClick={() => setMode('LINK')} className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all ${mode === 'LINK' ? 'bg-white shadow-sm text-emerald-600' : 'text-zinc-500'}`}><LinkIcon size={16} /> Google Sheets</button>
+          <button onClick={() => setMode('FILE')} className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all ${mode === 'FILE' ? 'bg-white shadow-sm text-emerald-600' : 'text-zinc-500'}`}><FileSpreadsheet size={16} /> 파일 업로드</button>
+          <button onClick={() => setMode('LINK')} className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all ${mode === 'LINK' ? 'bg-white shadow-sm text-emerald-600' : 'text-zinc-500'}`}><LinkIcon size={16} /> 구글 시트</button>
         </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-1 space-y-6">
           <div className="bg-white border border-zinc-200 rounded-2xl p-6 shadow-sm">
-            <h3 className="font-bold text-zinc-900 mb-4 flex items-center gap-2"><Upload size={18} className="text-emerald-500" /> Quick Import</h3>
+            <h3 className="font-bold text-zinc-900 mb-4 flex items-center gap-2"><Upload size={18} className="text-emerald-500" /> 가져오기</h3>
             
             {mode === 'FILE' ? (
               <div 
@@ -222,14 +222,14 @@ export default function UploadPage() {
                 className={`border-2 border-dashed rounded-xl p-8 text-center transition-all ${isDragging ? 'border-emerald-500 bg-emerald-50' : 'border-zinc-100'}`}
               >
                 <FileSpreadsheet size={32} className="mx-auto text-zinc-300 mb-4" />
-                <p className="text-xs text-zinc-500 mb-4">Click to browse or drag & drop</p>
-                <label className="bg-zinc-900 text-white px-4 py-2 rounded-lg text-xs font-bold cursor-pointer hover:bg-zinc-800">Select File<input type="file" className="hidden" onChange={(e) => e.target.files?.[0] && handleFileUpload(e.target.files[0])} /></label>
+                <p className="text-xs text-zinc-500 mb-4">클릭하여 파일을 선택하거나 여기에 드래그하세요</p>
+                <label className="bg-zinc-900 text-white px-4 py-2 rounded-lg text-xs font-bold cursor-pointer hover:bg-zinc-800">파일 선택<input type="file" className="hidden" onChange={(e) => e.target.files?.[0] && handleFileUpload(e.target.files[0])} /></label>
               </div>
             ) : (
               <div className="space-y-3">
                 <input type="text" placeholder="구글 시트 URL을 입력하세요" className="w-full bg-zinc-50 border border-zinc-200 rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-emerald-500 transition-all" value={sheetUrl} onChange={(e) => setSheetUrl(e.target.value)} />
                 <button onClick={handleFetchSheet} disabled={isLoading || !sheetUrl} className="w-full bg-zinc-900 text-white py-3 rounded-xl text-sm font-bold disabled:opacity-50 hover:bg-zinc-800 transition-all">
-                  {isLoading ? <Loader2 size={18} className="animate-spin mx-auto" /> : 'Fetch Data'}
+                  {isLoading ? <Loader2 size={18} className="animate-spin mx-auto" /> : '데이터 가져오기'}
                 </button>
               </div>
             )}
@@ -237,8 +237,8 @@ export default function UploadPage() {
             {previewData.length > 0 && (
               <div className="mt-6 pt-6 border-t border-zinc-100 animate-in slide-in-from-top-2">
                 <div className="flex justify-between items-center mb-4">
-                  <span className="text-xs font-bold text-zinc-500">{previewData.length} rows detected</span>
-                  {isSuccess && <span className="text-emerald-500 text-xs font-bold flex items-center gap-1"><CheckCircle2 size={12}/> Success!</span>}
+                  <span className="text-xs font-bold text-zinc-500">{previewData.length}개의 행 감지됨</span>
+                  {isSuccess && <span className="text-emerald-500 text-xs font-bold flex items-center gap-1"><CheckCircle2 size={12}/> 성공!</span>}
                 </div>
                 
                 <div className="mb-6 max-h-[300px] overflow-y-auto border border-zinc-100 rounded-xl bg-zinc-50 p-2">
@@ -259,7 +259,7 @@ export default function UploadPage() {
                 </div>
 
                 <button onClick={handleImport} disabled={isSyncing || isSuccess} className={`w-full text-white py-3 rounded-xl text-sm font-bold flex items-center justify-center gap-2 shadow-lg transition-all ${isSuccess ? 'bg-zinc-900' : 'bg-emerald-600 hover:bg-emerald-700'}`}>
-                  {isSyncing ? <><Loader2 size={18} className="animate-spin" /> Syncing...</> : isSuccess ? <><CheckCircle2 size={18} /> Sync Complete</> : <>Complete Import <ArrowRight size={18} /></>}
+                  {isSyncing ? <><Loader2 size={18} className="animate-spin" /> 동기화 중...</> : isSuccess ? <><CheckCircle2 size={18} /> 동기화 완료</> : <>가져오기 완료 <ArrowRight size={18} /></>}
                 </button>
               </div>
             )}
@@ -269,16 +269,16 @@ export default function UploadPage() {
 
           <div className="bg-zinc-900 text-white rounded-2xl p-6 relative overflow-hidden">
             <div className="absolute -right-4 -bottom-4 w-24 h-24 bg-emerald-500 opacity-10 rounded-full blur-2xl"></div>
-            <h4 className="text-sm font-bold mb-2 flex items-center gap-2 relative z-10"><Database size={16} className="text-emerald-400" /> Storage Info</h4>
-            <p className="text-[11px] text-zinc-500 leading-relaxed relative z-10">All uploaded data is synchronized with your central PCF repository. Once synced, you can see the results on the main dashboard.</p>
+            <h4 className="text-sm font-bold mb-2 flex items-center gap-2 relative z-10"><Database size={16} className="text-emerald-400" /> 저장 정보</h4>
+            <p className="text-[11px] text-zinc-500 leading-relaxed relative z-10">업로드된 모든 데이터는 중앙 PCF 저장소와 동기화됩니다. 동기화가 완료되면 메인 대시보드에서 결과를 확인할 수 있습니다.</p>
           </div>
         </div>
 
         <div className="lg:col-span-2 space-y-6">
           <div className="bg-white border border-zinc-200 rounded-2xl overflow-hidden shadow-sm">
             <div className="p-6 border-b border-zinc-100 flex justify-between items-center">
-              <div><h3 className="font-bold text-zinc-900 flex items-center gap-2"><TableIcon size={18} className="text-emerald-500" /> Activity History</h3><p className="text-xs text-zinc-500 mt-1">Showing all persistent records from your repository.</p></div>
-              <button onClick={handleClearAllData} disabled={isDeleting || persistentData.length === 0} className="text-[10px] font-bold text-zinc-400 hover:text-red-500 disabled:opacity-30 transition-colors uppercase tracking-widest flex items-center gap-1">{isDeleting && <Loader2 size={10} className="animate-spin" />} Delete All Data</button>
+              <div><h3 className="font-bold text-zinc-900 flex items-center gap-2"><TableIcon size={18} className="text-emerald-500" /> 활동 이력</h3><p className="text-xs text-zinc-500 mt-1">저장소에 보관된 모든 활동 기록을 보여줍니다.</p></div>
+              <button onClick={handleClearAllData} disabled={isDeleting || persistentData.length === 0} className="text-[10px] font-bold text-zinc-400 hover:text-red-500 disabled:opacity-30 transition-colors uppercase tracking-widest flex items-center gap-1">{isDeleting && <Loader2 size={10} className="animate-spin" />} 모든 데이터 삭제</button>
             </div>
             
             <div className="overflow-x-auto max-h-[600px]">
@@ -298,7 +298,7 @@ export default function UploadPage() {
                       <td className="px-6 py-4 text-[10px] font-bold text-zinc-400 uppercase">{row['단위']}</td>
                     </tr>
                   ))}
-                  {persistentData.length === 0 && (<tr><td colSpan={5} className="px-6 py-12 text-center text-zinc-400 text-sm">No activity records found. Please upload data.</td></tr>)}
+                  {persistentData.length === 0 && (<tr><td colSpan={5} className="px-6 py-12 text-center text-zinc-400 text-sm">기록된 활동 데이터가 없습니다. 데이터를 업로드해 주세요.</td></tr>)}
                 </tbody>
               </table>
             </div>

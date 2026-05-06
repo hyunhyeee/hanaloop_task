@@ -3,10 +3,8 @@
 import { 
   LayoutDashboard, 
   BookOpen, 
-  BarChart3, 
-  Settings, 
+  BarChart3,
   FileSpreadsheet,
-  Globe,
   Calculator
 } from 'lucide-react';
 import Link from 'next/link';
@@ -26,10 +24,7 @@ export const Sidebar = () => {
   return (
     <div className="w-64 bg-zinc-900 text-white min-h-screen p-4 flex flex-col">
       <div className="flex items-center gap-2 px-2 py-6 mb-8 border-b border-zinc-800">
-        <div className="bg-emerald-500 p-1.5 rounded-lg">
-          <Globe size={24} className="text-white" />
-        </div>
-        <span className="text-xl font-bold tracking-tight">HanaLoop</span>
+        <span className="text-xl font-bold tracking-tight">HanaLoop Task</span>
       </div>
 
       <nav className="flex-1 space-y-1">
@@ -53,7 +48,8 @@ export const Sidebar = () => {
       </nav>
 
       <div className="pt-6 border-t border-zinc-800 mt-auto px-2 pb-4 text-xs text-zinc-500">
-        © 2026 HanaLoop PCF v1.0
+        <p>© 2026 HanaLoop Task</p>
+        <p>developer: HYUNHYE CHOI</p>
       </div>
     </div>
   );

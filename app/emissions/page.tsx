@@ -48,6 +48,17 @@ export default function EmissionsPage() {
   const [isResetting, setIsResetting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const getCategoryLabel = (cat: string) => {
+    switch (cat) {
+      case 'ELECTRICITY': return '전력 / 에너지';
+      case 'MATERIAL': return '원부자재';
+      case 'TRANSPORT': return '물류 / 운송';
+      case 'STATIONARY_COMBUSTION': return '고정 연소';
+      case 'MOBILE_COMBUSTION': return '이동 연소';
+      default: return cat;
+    }
+  };
+
   const fetchFactors = async () => {
     setIsLoading(true);
     try {
@@ -92,7 +103,7 @@ export default function EmissionsPage() {
 
       if (!response.ok) {
         const data = await response.json();
-        throw new Error(data.error || 'Failed to update factor');
+        throw new Error(data.error || '계수 업데이트에 실패했습니다.');
       }
 
       setIsModalOpen(false);
@@ -107,7 +118,7 @@ export default function EmissionsPage() {
   };
 
   const handleReset = async () => {
-    if (!confirm('Are you sure you want to reset all factors to their initial values?')) return;
+    if (!confirm('모든 계수를 초기값으로 되돌리시겠습니까?')) return;
     
     setIsResetting(true);
     try {
@@ -119,14 +130,14 @@ export default function EmissionsPage() {
       
       if (response.ok) {
         await fetchFactors();
-        alert('All factors have been reset to their original values.');
+        alert('모든 배출 계수가 초기값으로 복구되었습니다.');
       } else {
         const data = await response.json();
-        alert(`Reset failed: ${data.error}`);
+        alert(`초기화 실패: ${data.error}`);
       }
     } catch (err) {
       console.error('Reset error:', err);
-      alert('An unexpected error occurred during reset.');
+      alert('초기화 중 예기치 않은 오류가 발생했습니다.');
     } finally {
       setIsResetting(false);
     }
@@ -136,8 +147,8 @@ export default function EmissionsPage() {
     <div className="max-w-6xl mx-auto space-y-8 pb-20">
       <div className="flex justify-between items-end">
         <div>
-          <h1 className="text-2xl font-bold text-zinc-900">Emission Factors</h1>
-          <p className="text-zinc-500">Manage and track version history of carbon emission coefficients.</p>
+          <h1 className="text-2xl font-bold text-zinc-900">배출 계수 관리</h1>
+          <p className="text-zinc-500">탄소 배출량 계산에 사용되는 기준 계수를 관리하고 버전별 이력을 추적합니다.</p>
         </div>
         <div className="flex gap-3">
           <button 
@@ -145,10 +156,10 @@ export default function EmissionsPage() {
             disabled={isResetting || isLoading}
             className="px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2 border border-zinc-200 text-zinc-600 hover:bg-zinc-50 transition-all disabled:opacity-50"
           >
-            {isResetting ? <Loader2 size={18} className="animate-spin" /> : <Clock size={18} />} Initialize
+            {isResetting ? <Loader2 size={18} className="animate-spin" /> : <Clock size={18} />} 초기화
           </button>
           <button className="bg-emerald-600 text-white px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2 hover:bg-emerald-700 transition-all">
-            <Plus size={18} /> New Factor
+            <Plus size={18} /> 새 계수 추가
           </button>
         </div>
       </div>
@@ -159,7 +170,7 @@ export default function EmissionsPage() {
           {isLoading && factors.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-64 bg-white rounded-2xl border border-zinc-200">
               <Loader2 className="text-emerald-500 animate-spin mb-4" size={40} />
-              <p className="text-zinc-400 font-medium">Loading factors...</p>
+              <p className="text-zinc-400 font-medium">데이터를 불러오는 중...</p>
             </div>
           ) : (
             factors.map((factor) => (
@@ -175,12 +186,12 @@ export default function EmissionsPage() {
                 <div className="flex justify-between items-start">
                   <div className="space-y-1">
                     <span className="text-[10px] font-bold uppercase tracking-widest text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded">
-                      {factor.category}
+                      {getCategoryLabel(factor.category)}
                     </span>
                     <h3 className="text-lg font-bold text-zinc-900 group-hover:text-emerald-600 transition-colors">
                       {factor.name}
                     </h3>
-                    <p className="text-xs text-zinc-500">Last updated: {new Date(factor.updatedAt).toLocaleDateString()}</p>
+                    <p className="text-xs text-zinc-500">최근 업데이트: {new Date(factor.updatedAt).toLocaleDateString('ko-KR')}</p>
                   </div>
                   <div className="text-right">
                     <p className="text-2xl font-black text-zinc-900">{factor.currentValue}</p>
@@ -201,7 +212,7 @@ export default function EmissionsPage() {
               <div className="relative z-10 space-y-6">
                 <div className="flex items-center gap-3 border-b border-zinc-800 pb-4">
                   <History className="text-emerald-500" size={24} />
-                  <h3 className="font-bold">Version History</h3>
+                  <h3 className="font-bold">버전 히스토리</h3>
                 </div>
 
                 <div className="space-y-6 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
@@ -214,10 +225,10 @@ export default function EmissionsPage() {
                       <div className="space-y-1">
                         <div className="flex justify-between items-center">
                           <p className="text-xs font-bold text-zinc-400">v{v.versionNumber}</p>
-                          <p className="text-[10px] text-zinc-500">{new Date(v.createdAt).toLocaleDateString()}</p>
+                          <p className="text-[10px] text-zinc-500">{new Date(v.createdAt).toLocaleDateString('ko-KR')}</p>
                         </div>
                         <p className="text-lg font-bold text-white">{v.value}</p>
-                        <p className="text-xs text-zinc-400 italic">"{v.remarks || 'No remarks'}"</p>
+                        <p className="text-xs text-zinc-400 italic">"{v.remarks || '메모 없음'}"</p>
                       </div>
                     </div>
                   ))}
@@ -228,10 +239,10 @@ export default function EmissionsPage() {
                     onClick={() => setIsModalOpen(true)}
                     className="w-full bg-white text-zinc-900 py-3 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-zinc-100 transition-all"
                   >
-                    <Edit3 size={18} /> Update Factor Value
+                    <Edit3 size={18} /> 계수 수치 업데이트
                   </button>
                   <p className="text-[10px] text-zinc-500 text-center mt-3 flex items-center justify-center gap-1">
-                    <Info size={10} /> Updating will create v{selectedFactor.versions.length + 1}
+                    <Info size={10} /> 업데이트 시 v{selectedFactor.versions.length + 1} 버전이 생성됩니다.
                   </p>
                 </div>
               </div>
@@ -239,7 +250,7 @@ export default function EmissionsPage() {
           ) : (
             <div className="bg-zinc-100 border border-zinc-200 rounded-2xl p-8 text-center flex flex-col items-center justify-center h-full min-h-[300px]">
               <Database className="text-zinc-300 mb-4" size={48} />
-              <p className="text-zinc-500 font-medium">Select a factor to view its full history and manage versions.</p>
+              <p className="text-zinc-500 font-medium">계수를 선택하면 전체 이력을 확인하고 버전을 관리할 수 있습니다.</p>
             </div>
           )}
         </div>
@@ -250,7 +261,7 @@ export default function EmissionsPage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4 animate-in fade-in duration-200">
           <div className="bg-white rounded-2xl w-full max-w-md overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200">
             <div className="p-6 border-b border-zinc-100 flex justify-between items-center">
-              <h3 className="font-bold text-zinc-900">Update Emission Factor</h3>
+              <h3 className="font-bold text-zinc-900">배출 계수 업데이트</h3>
               <button onClick={() => setIsModalOpen(false)} className="text-zinc-400 hover:text-zinc-600">
                 <X size={20} />
               </button>
@@ -258,20 +269,20 @@ export default function EmissionsPage() {
             
             <form onSubmit={handleUpdate} className="p-6 space-y-4">
               <div className="bg-zinc-50 p-4 rounded-xl border border-zinc-100">
-                <p className="text-[10px] font-bold text-emerald-600 uppercase tracking-widest">{selectedFactor.category}</p>
+                <p className="text-[10px] font-bold text-emerald-600 uppercase tracking-widest">{getCategoryLabel(selectedFactor.category)}</p>
                 <p className="font-bold text-zinc-900">{selectedFactor.name}</p>
-                <p className="text-xs text-zinc-500">Current: {selectedFactor.currentValue} {selectedFactor.unit}</p>
+                <p className="text-xs text-zinc-500">현재 수치: {selectedFactor.currentValue} {selectedFactor.unit}</p>
               </div>
 
               <div className="space-y-4">
                 <label className="block">
-                  <span className="text-sm font-bold text-zinc-700">New Factor Value</span>
+                  <span className="text-sm font-bold text-zinc-700">새로운 계수값</span>
                   <div className="relative mt-1">
                     <input 
                       type="number" 
                       step="any"
                       required
-                      placeholder="e.g. 0.458"
+                      placeholder="예: 0.458"
                       className="w-full bg-zinc-50 border border-zinc-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-emerald-500 outline-none transition-all"
                       value={newValue}
                       onChange={(e) => setNewValue(e.target.value)}
@@ -281,10 +292,10 @@ export default function EmissionsPage() {
                 </label>
 
                 <label className="block">
-                  <span className="text-sm font-bold text-zinc-700">Change Remarks (Required)</span>
+                  <span className="text-sm font-bold text-zinc-700">변경 사유 (필수)</span>
                   <textarea 
                     required
-                    placeholder="e.g. 2026 Environment Ministry updated standard"
+                    placeholder="예: 2026년 환경부 고시 기준 업데이트"
                     className="w-full mt-1 bg-zinc-50 border border-zinc-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-emerald-500 outline-none transition-all h-24 resize-none"
                     value={remarks}
                     onChange={(e) => setRemarks(e.target.value)}
@@ -304,14 +315,14 @@ export default function EmissionsPage() {
                   onClick={() => setIsModalOpen(false)}
                   className="flex-1 px-4 py-3 border border-zinc-200 rounded-xl text-sm font-bold text-zinc-600 hover:bg-zinc-50 transition-all"
                 >
-                  Cancel
+                  취소
                 </button>
                 <button 
                   type="submit"
                   disabled={isUpdating || !newValue || !remarks}
                   className="flex-[2] bg-emerald-600 text-white py-3 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-emerald-700 transition-all disabled:opacity-50"
                 >
-                  {isUpdating ? <Loader2 size={18} className="animate-spin" /> : 'Confirm Update'}
+                  {isUpdating ? <Loader2 size={18} className="animate-spin" /> : '업데이트 확인'}
                 </button>
               </div>
             </form>
