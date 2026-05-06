@@ -61,13 +61,26 @@ export async function POST(request: Request) {
       }
     }
 
-    if (!companyId) {
-      // Fallback to first available company if none provided
+    // 1c. Verify if the company actually exists
+    let companyExists = false;
+    if (companyId) {
+      const comp = await prisma.company.findUnique({ where: { id: companyId }, select: { id: true } });
+      companyExists = !!comp;
+    }
+
+    if (!companyExists) {
+      // Fallback to first available company if provided one doesn't exist
       const firstCompany = await prisma.company.findFirst({ select: { id: true } });
       if (firstCompany) {
         companyId = firstCompany.id;
       } else {
-        throw new Error('No company context found. Please ensure at least one company exists.');
+        // Final fallback: Create a default company if nothing exists
+        const defaultComp = await prisma.company.upsert({
+          where: { id: 'default-company' },
+          update: {},
+          create: { id: 'default-company', name: '기본 회사', country: 'KR' }
+        });
+        companyId = defaultComp.id;
       }
     }
 

@@ -14,11 +14,10 @@ export default function WhatIsPcfPage() {
             <BookOpen className="text-emerald-500" size={32} />
             What is PCF?
           </h1>
-          <p className="text-zinc-500 mt-1">Learn about Product Carbon Footprint and GHG Accounting Standards.</p>
         </div>
         <div className="bg-emerald-50 border border-emerald-100 px-4 py-2 rounded-xl flex items-center gap-2">
           <Info size={16} className="text-emerald-600" />
-          <span className="text-xs font-bold text-emerald-700">Official Standards Guide</span>
+          <span className="text-xs font-bold text-emerald-700">공식 가이드</span>
         </div>
       </div>
 
@@ -29,7 +28,6 @@ export default function WhatIsPcfPage() {
           <h2 className="text-xl font-bold text-zinc-900">Why does it matter?</h2>
           <p className="text-zinc-600 leading-relaxed">
             탄소 국경 조정 제도(CBAM)와 같은 글로벌 규제가 강화됨에 따라, 제품의 탄소 배출량을 정확히 측정하고 보고하는 능력은 기업의 생존과 직결됩니다. 
-            Hanaloop의 PCF 관리 도구는 복잡한 계산을 자동화하고 표준화된 데이터를 제공하여 탄소 중립 여정을 지원합니다.
           </p>
         </div>
       </div>
