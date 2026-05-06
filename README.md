@@ -1,6 +1,6 @@
 # PCF Dashboard
 
-제품 탄소 발자국(PCF) 관리 및 탄소 배출량 가시화를 위한 엔터프라이즈급 대시보드 솔루션입니다.
+제품 탄소 발자국(PCF) 관리 및 탄소 배출량 가시화를 위한 대시보드 솔루션
 
 ## 🚀 실행 방법
 
@@ -29,6 +29,45 @@ npx prisma db seed
 # 5. 애플리케이션 실행
 (1) yarn start or (2) npm run dev
 ```
+---
+## ⏳ 시연 영상
+
+https://github.com/user-attachments/assets/f5733666-6070-4513-80de-6804083ed19d
+---
+## 🖥 화면 구성
+
+<details>
+<summary>실행 화면 보기</summary><br>
+  
+(1) **시작 페이지** <br><br>
+<img width="2826" height="1296" alt="image" src="https://github.com/user-attachments/assets/de489368-8b76-4020-bf4d-b6b6d7f4bdde" />
+<img width="2825" height="1031" alt="image" src="https://github.com/user-attachments/assets/23f7a707-1b3f-485f-af3d-4b4ac827456d" />
+<img width="2822" height="1086" alt="image" src="https://github.com/user-attachments/assets/8bf286cc-3000-4e18-9b9e-79d160f53195" />
+<img width="2833" height="775" alt="image" src="https://github.com/user-attachments/assets/1bfdf345-d614-48a8-ab77-677e1ae500be" /><br><br>
+
+
+(2) **데이터 업로드 페이지**<br><br>
+<img width="2830" height="1472" alt="image" src="https://github.com/user-attachments/assets/4713a9a3-d96d-4a69-a979-3e4c43180337" />
+<br><br>
+
+(3) **PCF 소개**<br><br>
+<img width="2826" height="1494" alt="image" src="https://github.com/user-attachments/assets/0b7d65bd-f048-489e-8348-5e2937853e41" />
+<br><br>
+
+(4) **배출 계수 관리**<br><br>
+<img width="2832" height="1500" alt="image" src="https://github.com/user-attachments/assets/5a404167-57e4-4f31-b066-cf25b60bc45f" />
+<br><br>
+
+(5) **탄소 예측 계산**<br><br>
+<img width="2820" height="1490" alt="image" src="https://github.com/user-attachments/assets/353cb3d1-b6c6-4ccc-997c-e77302934495" />
+<img width="2782" height="1385" alt="image" src="https://github.com/user-attachments/assets/0f5782fa-6be5-4f5d-ae36-09265bb10eb2" />
+
+
+
+
+</details>
+<br>
+
 
 ---
 
@@ -103,20 +142,3 @@ npx prisma db seed
 ## 🤖 AI 도구 사용 내역
 
 - **Gemini CLI**: 프로젝트 아키텍처 설계, Prisma 스키마 최적화, 복잡한 데이터 파싱 로직 구현 및 UI 컴포넌트 개발 전 과정에 활용되었습니다. 특히 **지능형 헤더 탐색 알고리즘** 구현과 **필드 단위 에러 핸들링** 시스템 구축에 핵심적인 역할을 수행했습니다.
-
-## 구현 체크리스트
-
-| 구분       | 과제 항목                                | 상태 | 비고                                                         |
-| :--------- | :--------------------------------------- | :--- | :----------------------------------------------------------- |
-| **필수**   | PCF 계산 결과 시각화 및 직관적인 UI 구현 | ✅   | 대시보드 및 상세 차트 구현 완료                              |
-| **필수**   | 데이터 정확성 및 단위 표시 적절성        | ✅   | kgCO2e 단위 및 자동 계산 로직 적용                           |
-| **필수**   | 데이터 입력 오류 시 에러 메시지 표시     | ✅   | 필드별 상세 에러 메시지 및 유효성 검사 완료                  |
-| **필수**   | README 실행 방법 명확성 (5단계 이내)     | ✅   | Docker Compose 기반 간편 실행 가이드 포함                    |
-| **필수**   | AI 도구 사용 내역 기록                   | ✅   | Gemini CLI 활용 내역 명시                                    |
-| **필수**   | 시스템 전체 설명 및 설계 내용 포함       | ✅   | 시스템 설계 및 설계 의도 섹션 추가                           |
-| **필수**   | GitHub Public 저장소 및 커밋 히스토리    | ✅   | 완료                                                         |
-| **권장**   | ERD 또는 스키마 다이어그램 포함          | ✅   | `prisma/schema.prisma` 및 설계 설명 포함                     |
-| **권장**   | 설계 의도 및 Trade-off 설명              | ✅   | 시스템 설계 섹션 내 상세 기술                                |
-| **보너스** | Docker Compose 즉시 실행 가능            | ✅   | `docker-compose.yaml` 및 환경 설정 완료                      |
-| **보너스** | 과제용 엑셀 데이터 직접 임포트 가능      | ✅   | **무가공 직접 임포트 인터페이스 구현 완료 (추가 가점 항목)** |
-| **보너스** | OpenAPI / Swagger 문서                   | ⏳   |                                                              |
