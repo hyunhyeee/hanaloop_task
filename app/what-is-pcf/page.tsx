@@ -17,7 +17,7 @@ export default function WhatIsPcfPage() {
         </div>
         <div className="bg-emerald-50 border border-emerald-100 px-4 py-2 rounded-xl flex items-center gap-2">
           <Info size={16} className="text-emerald-600" />
-          <span className="text-xs font-bold text-emerald-700">공식 가이드</span>
+          <span className="text-xs font-bold text-emerald-700"> 가이드</span>
         </div>
       </div>
 
