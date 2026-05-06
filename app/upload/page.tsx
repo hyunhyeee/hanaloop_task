@@ -168,6 +168,18 @@ export default function UploadPage() {
     }
   };
 
+  const formatExcelDate = (val: any) => {
+    if (!val) return '-';
+    if (val instanceof Date) {
+      return val.toISOString().split('T')[0];
+    }
+    if (typeof val === 'number') {
+      const date = new Date((val - 25569) * 86400 * 1000);
+      return date.toISOString().split('T')[0];
+    }
+    return String(val);
+  };
+
   return (
     <div className="max-w-6xl mx-auto space-y-12 pb-20 animate-in fade-in duration-500">
       <div className="flex justify-between items-end">
@@ -325,7 +337,7 @@ export default function UploadPage() {
                 <tbody className="divide-y divide-zinc-100">
                   {persistentData.map((row, i) => (
                     <tr key={i} className="hover:bg-zinc-50 transition-colors group">
-                      <td className="px-6 py-4 text-sm font-medium text-zinc-900">{row['일자'] || row['일자(원본)'] || '-'}</td>
+                      <td className="px-6 py-4 text-sm font-medium text-zinc-900">{formatExcelDate(row['일자'] || row['일자(원본)'])}</td>
                       <td className="px-6 py-4">
                         <span className="bg-emerald-50 text-emerald-600 px-2 py-0.5 rounded text-[10px] font-bold">
                           {row['활동 유형'] || row['활동유형'] || '기타'}

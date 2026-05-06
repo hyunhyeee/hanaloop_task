@@ -29,7 +29,8 @@ export async function POST(request: Request) {
         });
 
         // Parse Date (Handling Excel serial numbers and string dates)
-        let yearMonth = '2025-05';
+        const now = new Date();
+        let yearMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
         const rawDate = row['일자'] || row['일자(원본)'];
         
         if (rawDate) {

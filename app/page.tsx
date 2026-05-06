@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { StatCard } from "@/components/dashboard/StatCard";
 import { TrendChart, BreakdownChart } from "@/components/dashboard/DashboardCharts";
 import { ProductComparisonChart } from "@/components/dashboard/ProductComparisonChart";
