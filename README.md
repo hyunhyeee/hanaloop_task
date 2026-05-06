@@ -6,26 +6,36 @@
 
 가장 빠르고 간편한 실행을 위해 **Docker** 환경을 권장합니다.
 
-### 방법 1: Docker Compose 사용 (권장)
+### 방법 1: Docker Compose + 로컬 실행 (추천)
+
+이 방법은 데이터베이스는 Docker로, 애플리케이션은 로컬 Node.js 환경에서 실행하는 하이브리드 방식입니다.
 
 ```bash
-# 1. 저장소 클론
+# 1. 저장소 클론 및 이동
 git clone https://github.com/hyunhyeee/hanaloop_task.git
-cd hanaloop_task/hanaloop
+cd hanaloop_task
 
-# 2. 컨테이너 빌드 및 실행 (DB 포함)
+# 2. 의존성 설치 (Prisma 및 필요한 라이브러리 설치)
+npm install
+
+# 3. 데이터베이스 컨테이너 실행
 docker-compose up -d
 
-# 3. .env 설정 (DATABASE_URL 입력)
+# 4. .env 설정 (DATABASE_URL 확인)
+# 프로젝트 루트의 .env 파일에 아래 내용이 있는지 확인합니다.
 # DATABASE_URL="postgresql://postgres:postgres@localhost:5432/postgres?schema=public"
 
-# 4. 데이터베이스 초기화 및 기초 수치(Seed) 주입
-npx prisma migrate dev --name init
+# 5. 데이터베이스 초기화 및 초기 데이터(Seed) 주입
+npx prisma migrate dev
 npx prisma db seed
 
-# 5. 접속
-# http://localhost:3000
+# 6. 애플리케이션 실행
+npm run dev
 ```
+
+# 7. 접속
+
+# http://localhost:3000
 
 ### 방법 2: 로컬 환경 실행
 
