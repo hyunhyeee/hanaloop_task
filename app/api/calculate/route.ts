@@ -30,7 +30,7 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const { 
-      companyId, 
+      companyId: providedCompanyId, 
       factorId, 
       productId, 
       activityValue, 
@@ -40,12 +40,35 @@ export async function POST(request: Request) {
       lifecycleStage 
     } = await request.json();
 
+    let companyId = providedCompanyId;
+
     // 1. Get the factor
     const factor = await prisma.emissionFactor.findUnique({
       where: { id: factorId }
     });
 
     if (!factor) throw new Error('Emission factor not found');
+
+    // 1b. If productId is provided, use its companyId to ensure consistency
+    if (productId) {
+      const product = await prisma.product.findUnique({
+        where: { id: productId },
+        select: { companyId: true }
+      });
+      if (product) {
+        companyId = product.companyId;
+      }
+    }
+
+    if (!companyId) {
+      // Fallback to first available company if none provided
+      const firstCompany = await prisma.company.findFirst({ select: { id: true } });
+      if (firstCompany) {
+        companyId = firstCompany.id;
+      } else {
+        throw new Error('No company context found. Please ensure at least one company exists.');
+      }
+    }
 
     // 2. Calculate PCF (Activity Value * Factor Value)
     const emissions = Number(activityValue) * factor.currentValue;
