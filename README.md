@@ -1,10 +1,8 @@
-# Hanaloop Sustainability PCF Dashboard
+# PCF Dashboard
 
-하나루프(Hanaloop)의 제품 탄소 발자국(PCF) 관리 및 탄소 배출량 가시화를 위한 엔터프라이즈급 대시보드 솔루션입니다.
+제품 탄소 발자국(PCF) 관리 및 탄소 배출량 가시화를 위한 엔터프라이즈급 대시보드 솔루션입니다.
 
-## 🚀 실행 방법 (Getting Started)
-
-가장 빠르고 간편한 실행을 위해 **Docker** 환경을 권장합니다.
+## 🚀 실행 방법
 
 ### 방법 1: Docker Compose + 로컬 실행 (추천)
 
@@ -15,50 +13,26 @@
 git clone https://github.com/hyunhyeee/hanaloop_task.git
 cd hanaloop_task
 
-# 2. 의존성 설치 (Prisma 및 필요한 라이브러리 설치)
-npm install
+# 2. 의존성 설치
+(1) yarn instll, yarn build or (2) npm install
 
-# 3. 데이터베이스 컨테이너 실행
+# 3. 데이터베이스 컨테이너 실행 및 .env 설정
 docker-compose up -d
 
-# 4. .env 설정 (DATABASE_URL 확인)
-# 프로젝트 루트의 .env 파일에 아래 내용이 있는지 확인합니다.
+# 프로젝트 루트의 .env 파일 생성후 아래 내용 삽입
 # DATABASE_URL="postgresql://postgres:postgres@localhost:5432/postgres?schema=public"
 
-# 5. 데이터베이스 초기화 및 초기 데이터(Seed) 주입
+# 4. 데이터베이스 초기화 및 초기 데이터 주입
 npx prisma migrate dev
 npx prisma db seed
 
-# 6. 애플리케이션 실행
-npm run dev
-```
-
-# 7. 접속
-
-# http://localhost:3000
-
-### 방법 2: 로컬 환경 실행
-
-_필요 조건: Node.js 20+, PostgreSQL_
-
-```bash
-# 1. 의존성 설치
-npm install
-
-# 2. .env 설정 (DATABASE_URL 입력)
-# DATABASE_URL="postgresql://postgres:postgres@localhost:5432/postgres?schema=public"
-
-# 3. Prisma 설정
-npx prisma migrate dev
-npx prisma db seed
-
-# 4. 앱 실행
-npm run dev
+# 5. 애플리케이션 실행
+(1) yarn start or (2) npm run dev
 ```
 
 ---
 
-## 🛠 기술 스택 (Tech Stack)
+## 🛠 기술 스택
 
 ### Frontend
 
@@ -80,30 +54,30 @@ npm run dev
 
 ---
 
-## ✨ 핵심 기능 (Features)
+## ✨ 핵심 기능
 
-### 1. 지능형 대시보드 (Sustainability Overview)
+### 1. 지능형 대시보드
 
 - **실시간 요약**: 평균 제품 PCF, 감축 목표 대비 현재 감축률, 총 등록 제품 수 가시화.
 - **다차원 분석**:
-  - 제품별 PCF 비교 차트 (Top Emission Products)
-  - 월별 배출량 트렌드 (Stacked Area Chart)
+  - 제품별 PCF 비교 차트
+  - 월별 배출량 트렌드
   - 전사적 배출원 비중 (Donut Chart - 원자재, 전기, 운송, 기타)
 - **상태 관리**: 데이터가 없는 초기 상태에서도 레이아웃을 유지하며, 사용자에게 업로드 가이드를 제공합니다.
 
-### 2. 스마트 데이터 관리 및 직접 임포트 (Data Management & Import)
+### 2. 스마트 데이터 관리 및 직접 임포트
 
 - **무가공 엑셀 임포트**: 제공된 시험용 엑셀 파일을 **별도 가공 없이 그대로** PostgreSQL에 임포트할 수 있는 지능형 인터페이스 구현.
 - **헤더 자동 탐색 및 매핑**: 데이터가 B3 셀 등 중간에서 시작하거나, 상단에 제목 텍스트가 있는 경우에도 '진짜 데이터'의 시작점을 자동으로 찾아냅니다.
 - **유연한 컬럼 인식**: '일자(원본)', '날짜', '량', '수량' 등 다양한 변종 컬럼명을 시스템 표준 항목으로 자동 매핑합니다.
 - **구글 시트 연동**: 구글 시트 URL을 통해 실시간으로 데이터를 동기화하며, 공유 설정 및 URL 오류에 대한 상세 가이드를 제공합니다.
 
-### 3. 탄소 예측 계산기 (Advanced Calculator)
+### 3. 탄소 예측 계산기
 
 - **실시간 예측**: 활동량을 입력하는 즉시 선택된 배출 계수와 연동하여 실시간 탄소 배출량(kgCO2e)을 계산 및 시각화합니다.
 - **배출 계수 버전 관리**: 계수의 변경 이력을 추적하며, 특정 시점에 사용된 계수를 기반으로 계산의 정확성을 보장합니다.
 
-### 4. 고도화된 에러 핸들링 (Error Handling)
+### 4. 고도화된 에러 핸들링
 
 - **필드별 상세 메시지**: 누락되거나 잘못된 입력 시, 전체 메시지 대신 해당 입력 필드 바로 아래에 구체적인 오류 내용과 경고 아이콘을 표시합니다.
 - **파일 형식 검증**: 지원하지 않는 파일 형식(.xlsx, .xls, .csv 외) 업로드 시 즉각적인 차단 및 안내.
@@ -111,9 +85,9 @@ npm run dev
 
 ---
 
-## 🏗 시스템 설계 (Functional Design)
+## 🏗 시스템 설계
 
-### 데이터베이스 스키마 (ERD Logic)
+### 데이터베이스 스키마
 
 - **Company & Product**: 기업 및 제품 단위의 계층 구조 관리.
 - **GhgEmission**: 모든 탄소 배출 활동의 원천 데이터 저장.
