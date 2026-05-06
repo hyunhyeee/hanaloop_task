@@ -1,3 +1,4 @@
+//대시보드 데이터 조회 API - 전체 탄소 배출량 요약, 월별 추세, 제품별 비교 및 상위 배출 제품 데이터를 제공
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 

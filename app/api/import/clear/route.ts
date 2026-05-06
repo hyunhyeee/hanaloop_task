@@ -1,3 +1,4 @@
+// 데이터 초기화 API - 시스템의 모든 활동 데이터, 제품 정보 및 기업 정보를 삭제하여 초기 상태로 만듭니다.
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 

@@ -1,5 +1,5 @@
 "use client";
-import React from 'react';
+// 좌측 사이드바 네비게이션 컴포넌트
 import { 
   LayoutDashboard, 
   BookOpen, 

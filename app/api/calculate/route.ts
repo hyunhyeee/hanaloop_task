@@ -1,3 +1,4 @@
+// 탄소 배출량 계산 API - 활동 데이터와 배출 계수를 바탕으로 탄소 배출량을 계산하고 결과를 저장
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 

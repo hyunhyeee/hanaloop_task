@@ -1,3 +1,4 @@
+// PCF 관련 타입 정의
 /**
  * 탄소 배출량의 전과정 단계 (Life Cycle Stages) - PCF 기준
  */

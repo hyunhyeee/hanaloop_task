@@ -1,3 +1,4 @@
+// 중복 배출 계수 수정 스크립트 - 배출 계수 데이터의 중복을 제거하고 정제된 기본 배출 계수 세트로 데이터베이스를 재설정
 import { PrismaClient } from '@prisma/client'
 
 const prisma = new PrismaClient()

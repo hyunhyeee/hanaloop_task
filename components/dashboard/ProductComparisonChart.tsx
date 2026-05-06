@@ -1,4 +1,5 @@
 "use client";
+// 제품별 탄소 배출량 비교 차트 컴포넌트 - 제품 간의 총 PCF를 가로 막대 차트로 비교하여 표시
 import React from 'react';
 import { 
   BarChart, 

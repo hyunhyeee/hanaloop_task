@@ -1,4 +1,5 @@
 "use client";
+// 대시보드 차트 컴포넌트 - 월별 탄소 배출량 추이(막대 차트) 및 카테고리별 배출 비중(파이 차트) 시각화
 import React from 'react';
 import { 
   BarChart, 

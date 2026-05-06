@@ -1,5 +1,7 @@
 "use client";
 
+// 데이터 업로드 페이지 - Excel 또는 Google Sheets를 통해 활동 데이터를 가져오고 관리하는 기능을 제공
+
 import React, { useState, useEffect } from 'react';
 import * as XLSX from 'xlsx';
 import { 

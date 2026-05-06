@@ -1,3 +1,4 @@
+// PCF 및 GHG Scope 설명 컴포넌트
 import React from 'react';
 import { Info, BookOpen, Layers, Factory, Truck, Trash2, Zap } from 'lucide-react';
 

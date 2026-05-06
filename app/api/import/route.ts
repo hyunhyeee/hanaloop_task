@@ -1,3 +1,4 @@
+// 엑셀 데이터 임포트 API - 엑셀 파일에서 추출된 활동 데이터를 시스템에 맞게 처리하고 탄소 배출량을 자동 계산하여 저장
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 

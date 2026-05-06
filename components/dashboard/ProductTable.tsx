@@ -1,3 +1,4 @@
+// 제품별 PCF 인벤토리 테이블 컴포넌트 - 각 제품의 카테고리, 총 배출량, 상태 및 업데이트 일자를 표 형식으로 나열
 import React from 'react';
 import { ProductPCF } from '../../types/pcf';
 import { MoreHorizontal, ArrowUpRight } from 'lucide-react';
@@ -10,20 +11,20 @@ export const ProductTable: React.FC<ProductTableProps> = ({ products }) => {
   return (
     <div className="bg-white rounded-xl border border-zinc-200 shadow-sm overflow-hidden">
       <div className="p-6 border-b border-zinc-100 flex justify-between items-center">
-        <h3 className="text-lg font-bold text-zinc-900">Product PCF Inventory</h3>
+        <h3 className="text-lg font-bold text-zinc-900">제품별 PCF 인벤토리</h3>
         <button className="text-emerald-600 text-sm font-semibold flex items-center gap-1 hover:underline">
-          View All <ArrowUpRight size={16} />
+          전체 보기 <ArrowUpRight size={16} />
         </button>
       </div>
       <div className="overflow-x-auto">
         <table className="w-full text-left">
           <thead>
             <tr className="bg-zinc-50 text-zinc-500 text-xs font-semibold uppercase tracking-wider">
-              <th className="px-6 py-4">Product Name</th>
-              <th className="px-6 py-4">Category</th>
-              <th className="px-6 py-4">Total PCF (kgCO2e)</th>
-              <th className="px-6 py-4">Status</th>
-              <th className="px-6 py-4">Last Updated</th>
+              <th className="px-6 py-4">제품명</th>
+              <th className="px-6 py-4">카테고리</th>
+              <th className="px-6 py-4">총 PCF (kgCO2e)</th>
+              <th className="px-6 py-4">상태</th>
+              <th className="px-6 py-4">최근 업데이트</th>
               <th className="px-6 py-4"></th>
             </tr>
           </thead>
@@ -55,7 +56,7 @@ export const ProductTable: React.FC<ProductTableProps> = ({ products }) => {
                 <td className="px-6 py-4">
                   <span className="flex items-center gap-1.5 text-xs font-medium text-emerald-600">
                     <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full"></span>
-                    Verified
+                    검증됨
                   </span>
                 </td>
                 <td className="px-6 py-4 text-sm text-zinc-500">

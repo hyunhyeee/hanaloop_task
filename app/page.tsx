@@ -1,5 +1,7 @@
 "use client";
 
+// 탄소 배출량 대시보드 메인 페이지 - 제품별 PCF 비교 및 배출량 추이를 시각화
+
 import { useState, useEffect } from 'react';
 import { StatCard } from "@/components/dashboard/StatCard";
 import { TrendChart, BreakdownChart } from "@/components/dashboard/DashboardCharts";
@@ -59,8 +61,8 @@ export default function Dashboard() {
       {/* Summary Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-zinc-900">Sustainability Overview</h1>
-          <p className="text-zinc-500">Real-time performance tracked from your database.</p>
+          <h1 className="text-2xl font-bold text-zinc-900">탄소 배출 개요</h1>
+          <p className="text-zinc-500">데이터베이스에서 실시간으로 집계된 성과 지표입니다.</p>
         </div>
         
         {!hasData && !isLoading && (
@@ -76,7 +78,7 @@ export default function Dashboard() {
       {/* Stat Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatCard 
-          title="Avg. Product PCF" 
+          title="평균 제품 PCF" 
           value={hasData ? summary!.totalAveragePcf : "-"} 
           unit={hasData ? "kgCO2e" : ""} 
           change={hasData ? -2.4 : undefined} 
@@ -84,14 +86,14 @@ export default function Dashboard() {
           color="bg-emerald-500" 
         />
         <StatCard 
-          title="Reduction Target" 
+          title="배출 감소 목표" 
           value={hasData ? summary!.reductionTarget : "-"} 
           unit={hasData ? "%" : ""} 
           icon={Target} 
           color="bg-blue-500" 
         />
         <StatCard 
-          title="Current Reduction" 
+          title="현재 감소율" 
           value={hasData ? summary!.currentReduction : "-"} 
           unit={hasData ? "%" : ""} 
           change={hasData ? 1.2 : undefined} 
@@ -99,9 +101,9 @@ export default function Dashboard() {
           color="bg-indigo-500" 
         />
         <StatCard 
-          title="Total Products" 
+          title="등록된 제품 수" 
           value={hasData ? products.length : "-"} 
-          unit={hasData ? "Items" : ""} 
+          unit={hasData ? "개" : ""} 
           icon={AlertTriangle} 
           color="bg-amber-500" 
         />
@@ -110,7 +112,7 @@ export default function Dashboard() {
       {/* Charts Section */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="bg-white p-6 rounded-xl border border-zinc-200 shadow-sm h-[450px] flex flex-col">
-          <h3 className="text-lg font-bold mb-6 text-zinc-900">Product PCF Comparison</h3>
+          <h3 className="text-lg font-bold mb-6 text-zinc-900">제품별 PCF 비교</h3>
           {!hasData ? <EmptyState /> : (
             <ProductComparisonChart 
               data={summary!.topEmissionProducts} 
@@ -119,7 +121,7 @@ export default function Dashboard() {
           )}
         </div>
         <div className="bg-white p-6 rounded-xl border border-zinc-200 shadow-sm h-[450px] flex flex-col">
-          <h3 className="text-lg font-bold mb-6 text-zinc-900">Monthly Emission Trend</h3>
+          <h3 className="text-lg font-bold mb-6 text-zinc-900">월별 배출량 추이</h3>
           {!hasData ? <EmptyState /> : (
             <TrendChart 
               data={summary!.monthlyTrend} 
@@ -132,7 +134,7 @@ export default function Dashboard() {
 
       <div className="grid grid-cols-1 gap-6">
         <div className="bg-white p-6 rounded-xl border border-zinc-200 shadow-sm min-h-[400px] flex flex-col">
-          <h3 className="text-lg font-bold mb-6 text-zinc-900">Total Emission Breakdown (Company-wide)</h3>
+          <h3 className="text-lg font-bold mb-6 text-zinc-900">전사 배출량 상세 구성</h3>
           {!hasData ? <EmptyState /> : (
             summary?.totalBreakdown && (
               <div className="max-w-2xl mx-auto w-full">
@@ -150,7 +152,7 @@ export default function Dashboard() {
       {!hasData ? (
         <div className="bg-white rounded-xl border border-zinc-200 shadow-sm overflow-hidden">
           <div className="p-6 border-b border-zinc-100">
-            <h3 className="text-lg font-bold text-zinc-900">Product PCF Inventory</h3>
+            <h3 className="text-lg font-bold text-zinc-900">제품별 PCF 인벤토리</h3>
           </div>
           <div className="py-20 flex justify-center">
             <EmptyState message="등록된 제품 데이터가 없습니다. CSV 또는 Excel 파일을 업로드하세요." />

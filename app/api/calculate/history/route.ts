@@ -1,3 +1,4 @@
+// 최근 탄소 배출량 계산 이력 조회 API - 최근 10개의 배출량 계산 기록을 조회
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 

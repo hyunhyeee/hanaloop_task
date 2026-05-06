@@ -1,5 +1,7 @@
 "use client";
 
+//탄소 예측 계산기 페이지 - 활동 데이터를 입력하여 탄소 배출량을 즉시 예측하고 기록하는 기능을 제공
+
 import React, { useState, useEffect } from 'react';
 import { 
   Calculator, 
@@ -336,7 +338,7 @@ try {
               </div>
               <h3 className="text-zinc-500 font-bold uppercase tracking-widest text-xs mb-2">실시간 배출량 예측</h3>
               <div className="flex items-baseline gap-2 mb-8">
-                <span className="text-6xl font-black tracking-tighter">{liveResult}</span>
+                <span className="text-4xl font-black tracking-tighter">{liveResult}</span>
                 <span className="text-zinc-500 font-black text-lg">kgCO2e</span>
               </div>
               

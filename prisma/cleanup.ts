@@ -1,3 +1,4 @@
+// 데이터 정리 스크립트 - 모든 활동 데이터와 제품 정보를 삭제
 import { PrismaClient } from '@prisma/client'
 
 const prisma = new PrismaClient()

@@ -1,3 +1,4 @@
+// 어플리케이션의 루트 레이아웃 - 사이드바, 헤더 등 공통 레이아웃 구조를 정의
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";

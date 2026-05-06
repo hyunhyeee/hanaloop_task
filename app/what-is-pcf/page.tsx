@@ -1,5 +1,6 @@
 "use client";
 
+// PCF 안내 페이지 - PCF의 개념, 중요성 및 관련 표준에 대한 정보를 제공합니다.
 import React from 'react';
 import { PcfDescription } from '@/components/pcf/PcfDescription';
 import { BookOpen, Info } from 'lucide-react';

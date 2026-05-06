@@ -1,5 +1,7 @@
 "use client";
 
+// 탄소 배출 계수 관리 페이지 - 배출 계수의 목록을 확인하고 새로운 버전으로 업데이트하거나 이력을 관리
+
 import React, { useState, useEffect } from 'react';
 import { 
   Database, 

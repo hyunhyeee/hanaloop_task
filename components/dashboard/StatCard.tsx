@@ -1,3 +1,4 @@
+// 통계 카드 컴포넌트 - 주요 지표(총 배출량, 목표 대비 달성률 등)를 요약하여 표시
 import React from 'react';
 import { LucideIcon } from 'lucide-react';
 

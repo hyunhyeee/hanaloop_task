@@ -1,3 +1,4 @@
+// 배출 계수 관리 API - 등록된 모든 배출 계수를 조회하거나 특정 계수의 값을 업데이트하고 이력을 관리
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 

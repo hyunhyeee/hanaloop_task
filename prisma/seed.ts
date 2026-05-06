@@ -1,3 +1,4 @@
+// 초기 테스트 데이터 시딩 스크립트 - 시스템 개발 및 테스트를 위해 기업, 제품, 예시 배출 데이터 및 기본 배출 계수를 생성
 import { PrismaClient } from '@prisma/client'
 
 const prisma = new PrismaClient()

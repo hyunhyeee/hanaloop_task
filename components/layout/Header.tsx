@@ -1,4 +1,5 @@
 "use client";
+// 상단 헤더 컴포넌트
 import { Upload } from 'lucide-react';
 import Link from 'next/link';
 

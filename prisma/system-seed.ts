@@ -1,3 +1,4 @@
+// 시스템 필수 데이터 시딩 스크립트 - 시스템 운영에 필요한 기본 기업 정보와 필수 탄소 배출 계수 데이터를 생성
 import { PrismaClient } from '@prisma/client'
 
 const prisma = new PrismaClient()
