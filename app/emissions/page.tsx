@@ -47,6 +47,7 @@ export default function EmissionsPage() {
   const [isUpdating, setIsUpdating] = useState(false);
   const [isResetting, setIsResetting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<{ [key: string]: string }>({});
 
   const getCategoryLabel = (cat: string) => {
     switch (cat) {
@@ -85,10 +86,33 @@ export default function EmissionsPage() {
 
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedFactor || !newValue) return;
+    if (!selectedFactor) return;
+
+    setFieldErrors({});
+    setError(null);
+
+    let hasError = false;
+    const newErrors: { [key: string]: string } = {};
+
+    if (!newValue) {
+      newErrors.newValue = '새로운 계수값을 입력해주세요.';
+      hasError = true;
+    } else if (isNaN(Number(newValue)) || Number(newValue) <= 0) {
+      newErrors.newValue = '0보다 큰 숫자를 입력해주세요.';
+      hasError = true;
+    }
+
+    if (!remarks.trim()) {
+      newErrors.remarks = '변경 사유를 입력해주세요.';
+      hasError = true;
+    }
+
+    if (hasError) {
+      setFieldErrors(newErrors);
+      return;
+    }
 
     setIsUpdating(true);
-    setError(null);
 
     try {
       const response = await fetch('/api/emissions', {
@@ -109,6 +133,7 @@ export default function EmissionsPage() {
       setIsModalOpen(false);
       setNewValue('');
       setRemarks('');
+      setFieldErrors({});
       await fetchFactors(); // Refresh data
     } catch (err: any) {
       setError(err.message);
@@ -281,30 +306,48 @@ export default function EmissionsPage() {
                     <input 
                       type="number" 
                       step="any"
-                      required
                       placeholder="예: 0.458"
-                      className="w-full bg-zinc-50 border border-zinc-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-emerald-500 outline-none transition-all"
+                      className={`w-full bg-zinc-50 border rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-emerald-500 outline-none transition-all ${
+                        fieldErrors.newValue ? 'border-red-500 ring-1 ring-red-500 bg-red-50' : 'border-zinc-200'
+                      }`}
                       value={newValue}
-                      onChange={(e) => setNewValue(e.target.value)}
+                      onChange={(e) => {
+                        setNewValue(e.target.value);
+                        setFieldErrors(prev => ({ ...prev, newValue: '' }));
+                      }}
                     />
                     <span className="absolute right-4 top-3 text-xs font-bold text-zinc-400">{selectedFactor.unit.split(' / ')[0]}</span>
                   </div>
+                  {fieldErrors.newValue && (
+                    <p className="text-[11px] text-red-500 font-bold flex items-center gap-1 mt-1.5 animate-in fade-in slide-in-from-left-1">
+                      <AlertCircle size={12} /> {fieldErrors.newValue}
+                    </p>
+                  )}
                 </label>
 
                 <label className="block">
                   <span className="text-sm font-bold text-zinc-700">변경 사유 (필수)</span>
                   <textarea 
-                    required
                     placeholder="예: 2026년 환경부 고시 기준 업데이트"
-                    className="w-full mt-1 bg-zinc-50 border border-zinc-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-emerald-500 outline-none transition-all h-24 resize-none"
+                    className={`w-full mt-1 bg-zinc-50 border rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-emerald-500 outline-none transition-all h-24 resize-none ${
+                      fieldErrors.remarks ? 'border-red-500 ring-1 ring-red-500 bg-red-50' : 'border-zinc-200'
+                    }`}
                     value={remarks}
-                    onChange={(e) => setRemarks(e.target.value)}
+                    onChange={(e) => {
+                      setRemarks(e.target.value);
+                      setFieldErrors(prev => ({ ...prev, remarks: '' }));
+                    }}
                   />
+                  {fieldErrors.remarks && (
+                    <p className="text-[11px] text-red-500 font-bold flex items-center gap-1 mt-1 animate-in fade-in slide-in-from-left-1">
+                      <AlertCircle size={12} /> {fieldErrors.remarks}
+                    </p>
+                  )}
                 </label>
               </div>
 
               {error && (
-                <div className="bg-red-50 border border-red-100 p-3 rounded-lg flex items-center gap-2 text-red-700 text-xs font-medium">
+                <div className="bg-red-50 border border-red-100 p-3 rounded-lg flex items-center gap-2 text-red-700 text-xs font-medium animate-in fade-in slide-in-from-top-1">
                   <AlertCircle size={14} /> {error}
                 </div>
               )}
@@ -312,14 +355,17 @@ export default function EmissionsPage() {
               <div className="flex gap-3 pt-2">
                 <button 
                   type="button"
-                  onClick={() => setIsModalOpen(false)}
+                  onClick={() => {
+                    setIsModalOpen(false);
+                    setFieldErrors({});
+                  }}
                   className="flex-1 px-4 py-3 border border-zinc-200 rounded-xl text-sm font-bold text-zinc-600 hover:bg-zinc-50 transition-all"
                 >
                   취소
                 </button>
                 <button 
                   type="submit"
-                  disabled={isUpdating || !newValue || !remarks}
+                  disabled={isUpdating}
                   className="flex-[2] bg-emerald-600 text-white py-3 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-emerald-700 transition-all disabled:opacity-50"
                 >
                   {isUpdating ? <Loader2 size={18} className="animate-spin" /> : '업데이트 확인'}

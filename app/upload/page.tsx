@@ -98,6 +98,17 @@ export default function UploadPage() {
   const handleFileUpload = (file: File) => {
     if (!file) return;
     setError(null);
+    setPreviewData([]);
+
+    const fileName = file.name.toLowerCase();
+    const validExtensions = ['.xlsx', '.xls', '.csv'];
+    const isValidExtension = validExtensions.some(ext => fileName.endsWith(ext));
+
+    if (!isValidExtension) {
+      setError('지원하지 않는 파일 형식입니다. (.xlsx, .xls, .csv 파일만 가능)');
+      return;
+    }
+
     setFileName(file.name);
 
     const reader = new FileReader();
@@ -106,19 +117,61 @@ export default function UploadPage() {
         const bstr = e.target?.result;
         const wb = XLSX.read(bstr, { type: 'binary' });
         const ws = wb.Sheets[wb.SheetNames[0]];
-        const json = XLSX.utils.sheet_to_json(ws, { defval: "" });
         
-        const cleaned = (json as any[]).map(row => ({
-          '일자': row['일자'] || row['일자(원본)'] || '',
-          '활동 유형': row['활동 유형'] || row['활동유형'] || '',
-          '설명': row['설명'] || '',
-          '량': row['량'] || 0,
-          '단위': row['단위'] || ''
-        })).filter(d => d['일자'] && d['활동 유형']);
+        const rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: "" }) as any[][];
+        
+        let headerRowIndex = -1;
+        for (let i = 0; i < Math.min(rows.length, 30); i++) {
+          const rowValues = rows[i].map(v => String(v).trim());
+          // 일자, 활동, 량, 단위 중 최소 2개 이상이 발견되어야 진짜 제목줄로 인정
+          const matchCount = rowValues.filter(v => 
+            v.includes('일자') || v.includes('활동') || v.includes('량') || v.includes('단위') || v.includes('날짜')
+          ).length;
+          
+          if (matchCount >= 2) {
+            headerRowIndex = i;
+            break;
+          }
+        }
+
+        if (headerRowIndex === -1) {
+          throw new Error('파일에서 데이터 테이블(일자, 활동 유형 등)을 찾을 수 없습니다. 헤더 명칭을 확인해주세요.');
+        }
+
+        const headers = rows[headerRowIndex].map(h => String(h).trim());
+        const dataRows = rows.slice(headerRowIndex + 1);
+        
+        const cleaned = dataRows
+          .filter(r => r.some(cell => cell !== ""))
+          .map(r => {
+            const item: any = {};
+            headers.forEach((h, idx) => { if (h) item[h] = r[idx]; });
+            
+            // 더 넓은 범위의 헤더 매핑
+            const dateVal = item['일자(원본)'] || item['일자'] || item['날짜'] || item['Date'] || '';
+            const typeVal = item['활동 유형'] || item['활동유형'] || item['활동'] || item['Activity'] || '';
+            const descVal = item['설명'] || item['비고'] || item['Description'] || '';
+            const amountVal = item['량'] || item['수량'] || item['양'] || item['Amount'] || item['Quantity'] || 0;
+            const unitVal = item['단위'] || item['Unit'] || '';
+
+            return {
+              '일자': dateVal,
+              '활동 유형': typeVal,
+              '설명': descVal,
+              '량': amountVal,
+              '단위': unitVal
+            };
+          })
+          .filter(d => d['일자'] && d['활동 유형']);
+
+        if (cleaned.length === 0) {
+          throw new Error('표시할 유효한 데이터 행이 없습니다.');
+        }
 
         setPreviewData(cleaned);
-      } catch (err) {
-        setError('파일을 해석하는 중 오류가 발생했습니다.');
+      } catch (err: any) {
+        setError(err.message || '파일을 해석하는 중 오류가 발생했습니다.');
+        setFileName('');
       }
     };
     reader.readAsBinaryString(file);
@@ -131,15 +184,22 @@ export default function UploadPage() {
     setPreviewData([]);
 
     try {
+      if (!sheetUrl.includes('docs.google.com/spreadsheets')) {
+        throw new Error('올바른 구글 시트 주소가 아닙니다.');
+      }
+
       const sheetIdMatch = sheetUrl.match(/\/d\/([a-zA-Z0-9-_]+)/);
-      if (!sheetIdMatch) throw new Error('올바르지 않은 구글 시트 URL입니다.');
+      if (!sheetIdMatch) throw new Error('구글 시트 ID를 추출할 수 없습니다.');
 
       const gidMatch = sheetUrl.match(/gid=([0-9]+)/);
       const gid = gidMatch ? `&gid=${gidMatch[1]}` : '';
 
       const exportUrl = `https://docs.google.com/spreadsheets/d/${sheetIdMatch[1]}/export?format=csv${gid}`;
       const response = await fetch(exportUrl);
-      if (!response.ok) throw new Error('시트 데이터를 가져오지 못했습니다. 링크 공유 설정을 확인해 주세요.');
+      
+      if (!response.ok) {
+        throw new Error('시트 데이터를 가져오지 못했습니다. 공유 설정을 확인해주세요.');
+      }
 
       const text = await response.text();
       const wb = XLSX.read(text, { type: 'string' });
@@ -148,15 +208,19 @@ export default function UploadPage() {
       const rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: "" }) as any[][];
       
       let headerRowIndex = -1;
-      for (let i = 0; i < Math.min(rows.length, 20); i++) {
-        const rowStr = rows[i].join('|');
-        if (rowStr.includes('일자') || rowStr.includes('활동')) {
+      for (let i = 0; i < Math.min(rows.length, 30); i++) {
+        const rowValues = rows[i].map(v => String(v).trim());
+        const matchCount = rowValues.filter(v => 
+          v.includes('일자') || v.includes('활동') || v.includes('량') || v.includes('단위') || v.includes('날짜')
+        ).length;
+        
+        if (matchCount >= 2) {
           headerRowIndex = i;
           break;
         }
       }
 
-      if (headerRowIndex === -1) throw new Error('시트에서 데이터 테이블(일자, 활동 유형 등)을 찾을 수 없습니다.');
+      if (headerRowIndex === -1) throw new Error('시트에서 데이터 테이블을 찾을 수 없습니다.');
 
       const headers = rows[headerRowIndex].map(h => String(h).trim());
       const dataRows = rows.slice(headerRowIndex + 1);
@@ -164,12 +228,13 @@ export default function UploadPage() {
       const finalData = dataRows.filter(r => r.some(cell => cell !== "")).map(r => {
         const item: any = {};
         headers.forEach((h, idx) => { if (h) item[h] = r[idx]; });
+        
         return {
-          '일자': item['일자(원본)'] || item['일자'] || '',
-          '활동 유형': item['활동 유형'] || item['활동유형'] || '',
-          '설명': item['설명'] || '',
-          '량': item['량'] || 0,
-          '단위': item['단위'] || ''
+          '일자': item['일자(원본)'] || item['일자'] || item['날짜'] || item['Date'] || '',
+          '활동 유형': item['활동 유형'] || item['활동유형'] || item['활동'] || item['Activity'] || '',
+          '설명': item['설명'] || item['비고'] || item['Description'] || '',
+          '량': item['량'] || item['수량'] || item['양'] || item['Amount'] || item['Quantity'] || 0,
+          '단위': item['단위'] || item['Unit'] || ''
         };
       }).filter(d => d['일자'] && d['활동 유형']);
 

@@ -47,6 +47,7 @@ export default function CalculatorPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [result, setResult] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<{ [key: string]: string }>({});
   const [history, setHistory] = useState<any[]>([]);
 
   const [showTutorial, setShowTutorial] = useState(false);
@@ -91,20 +92,38 @@ export default function CalculatorPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedFactor || !activityValue || isNaN(Number(activityValue)) || Number(activityValue) <= 0) {
-      setError('올바른 활동량을 입력하고 배출 계수를 선택해주세요.');
+    setFieldErrors({});
+    setError(null);
+
+    let hasError = false;
+    const newErrors: { [key: string]: string } = {};
+
+    if (!selectedFactor) {
+      newErrors.factor = '배출 계수를 선택해주세요.';
+      hasError = true;
+    }
+
+    if (!activityValue) {
+      newErrors.activity = '활동량을 입력해주세요.';
+      hasError = true;
+    } else if (isNaN(Number(activityValue)) || Number(activityValue) <= 0) {
+      newErrors.activity = '0보다 큰 숫자를 입력해주세요.';
+      hasError = true;
+    }
+
+    if (hasError) {
+      setFieldErrors(newErrors);
       return;
     }
 
     setIsSubmitting(true);
-    setError(null);
-try {
-  const response = await fetch('/api/calculate', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      companyId: 'default-company', 
-      factorId: selectedFactor,
+    try {
+      const response = await fetch('/api/calculate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          companyId: 'default-company', 
+          factorId: selectedFactor,
           productId: selectedProduct || null,
           scope: selectedScope,
           lifecycleStage: selectedStage,
@@ -119,6 +138,7 @@ try {
 
       setResult(data.result);
       setError(null); 
+      setFieldErrors({});
       await fetchHistory();
       setTimeout(() => setResult(null), 8000); 
       setActivityValue('');
@@ -266,11 +286,16 @@ try {
                   <button
                     key={f.id}
                     type="button"
-                    onClick={() => setSelectedFactor(f.id)}
+                    onClick={() => {
+                      setSelectedFactor(f.id);
+                      setFieldErrors(prev => ({ ...prev, factor: '' }));
+                    }}
                     className={`flex flex-col items-start p-4 rounded-xl border-2 transition-all text-left group ${
                       selectedFactor === f.id 
                         ? 'border-emerald-500 bg-emerald-50' 
-                        : 'border-zinc-100 hover:border-zinc-200 hover:bg-zinc-50'
+                        : fieldErrors.factor 
+                          ? 'border-red-200 bg-red-50 hover:border-red-300' 
+                          : 'border-zinc-100 hover:border-zinc-200 hover:bg-zinc-50'
                     }`}
                   >
                     <div className={`p-2 rounded-lg shadow-sm mb-3 transition-colors ${
@@ -285,6 +310,11 @@ try {
                   </button>
                 ))}
               </div>
+              {fieldErrors.factor && (
+                <p className="text-[11px] text-red-500 font-bold flex items-center gap-1 mt-1 animate-in fade-in slide-in-from-left-1">
+                  <AlertCircle size={12} /> {fieldErrors.factor}
+                </p>
+              )}
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
                 <label className="block">
@@ -294,15 +324,25 @@ try {
                       type="number" 
                       step="any"
                       placeholder="예: 500"
-                      className="w-full bg-zinc-50 border border-zinc-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-emerald-500 outline-none"
+                      className={`w-full bg-zinc-50 border rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-emerald-500 outline-none transition-all ${
+                        fieldErrors.activity ? 'border-red-500 ring-1 ring-red-500 bg-red-50' : 'border-zinc-200'
+                      }`}
                       value={activityValue}
-                      onChange={(e) => setActivityValue(e.target.value)}
+                      onChange={(e) => {
+                        setActivityValue(e.target.value);
+                        setFieldErrors(prev => ({ ...prev, activity: '' }));
+                      }}
                       required
                     />
                     <span className="absolute right-4 top-3.5 text-xs font-bold text-zinc-400">
                       {selectedFactorData?.unit.split(' / ')[1] || '단위'}
                     </span>
                   </div>
+                  {fieldErrors.activity && (
+                    <p className="text-[11px] text-red-500 font-bold flex items-center gap-1 mt-1.5 animate-in fade-in slide-in-from-left-1">
+                      <AlertCircle size={12} /> {fieldErrors.activity}
+                    </p>
+                  )}
                 </label>
                 <label className="block">
                   <span className="text-xs font-bold text-zinc-700 ml-1">데이터 출처 / 시설 메모</span>
@@ -319,7 +359,7 @@ try {
 
             <button 
               type="submit"
-              disabled={isSubmitting || !selectedFactor || !activityValue}
+              disabled={isSubmitting}
               className="w-full bg-zinc-900 text-white py-4 rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-zinc-800 transition-all disabled:opacity-50 shadow-lg shadow-zinc-200"
             >
               {isSubmitting ? <Loader2 className="animate-spin" /> : <><CheckCircle2 size={20} /> 계산 완료 및 데이터 기록</>}
