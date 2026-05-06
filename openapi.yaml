@@ -1,0 +1,310 @@
+openapi: 3.0.0
+info:
+  title: Hanaloop Sustainability PCF API
+  description: 제품 탄소 발자국(PCF) 관리 및 탄소 배출량 가시화 API 명세서
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:3000/api
+    description: 로컬 개발 서버
+
+paths:
+  /calculate:
+    get:
+      summary: 탄소 계산을 위한 기본 데이터 조회
+      description: 현재 등록된 배출 계수 목록과 제품 목록을 가져옵니다.
+      tags:
+        - Calculation
+      responses:
+        '200':
+          description: 성공적으로 데이터를 가져옴
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  factors:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/EmissionFactor'
+                  products:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Product'
+    post:
+      summary: 탄소 배출량 계산 및 기록
+      description: 활동 데이터를 입력하여 탄소 배출량을 계산하고 데이터베이스에 저장합니다.
+      tags:
+        - Calculation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - factorId
+                - activityValue
+                - yearMonth
+                - scope
+                - lifecycleStage
+              properties:
+                factorId:
+                  type: string
+                  description: 사용된 배출 계수 ID
+                productId:
+                  type: string
+                  nullable: true
+                  description: 대상 제품 ID (선택 사항)
+                activityValue:
+                  type: number
+                  description: 활동량 (예: 500)
+                yearMonth:
+                  type: string
+                  description: 보고 기간 (YYYY-MM)
+                source:
+                  type: string
+                  description: 데이터 출처 또는 메모
+                scope:
+                  type: string
+                  enum: [SCOPE_1, SCOPE_2, SCOPE_3]
+                  description: GHG 스코프
+                lifecycleStage:
+                  type: string
+                  enum: [RAW_MATERIAL, PRODUCTION, TRANSPORTATION, USE, DISPOSAL]
+                  description: PCF 라이프사이클 단계
+      responses:
+        '200':
+          description: 계산 및 저장 성공
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  result:
+                    $ref: '#/components/schemas/GhgEmission'
+
+  /calculate/history:
+    get:
+      summary: 최근 탄소 계산 이력 조회
+      description: 최근에 계산하여 기록된 10개의 데이터를 가져옵니다.
+      tags:
+        - Calculation
+      responses:
+        '200':
+          description: 최근 이력 목록
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  history:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/GhgEmission'
+
+  /dashboard:
+    get:
+      summary: 대시보드 통계 데이터 조회
+      description: 대시보드 시각화에 필요한 요약 통계, 월별 추세, 카테고리별 비중 등을 가져옵니다.
+      tags:
+        - Dashboard
+      responses:
+        '200':
+          description: 대시보드 데이터
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  summary:
+                    type: object
+                    properties:
+                      totalAveragePcf:
+                        type: number
+                      reductionTarget:
+                        type: number
+                      currentReduction:
+                        type: number
+                      categories:
+                        type: array
+                        items:
+                          type: string
+                      totalBreakdown:
+                        type: object
+                        additionalProperties:
+                          type: number
+                      monthlyTrend:
+                        type: array
+                        items:
+                          type: object
+                      topEmissionProducts:
+                        type: array
+                        items:
+                          type: object
+                  products:
+                    type: array
+                    items:
+                      type: object
+
+  /emissions:
+    get:
+      summary: 모든 배출 계수 및 버전 이력 조회
+      description: 시스템에 등록된 모든 배출 계수와 그들의 버전 히스토리를 가져옵니다.
+      tags:
+        - Emissions Management
+      responses:
+        '200':
+          description: 배출 계수 목록
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/EmissionFactorWithVersions'
+    patch:
+      summary: 특정 배출 계수 수치 업데이트
+      description: 배출 계수의 현재 값을 변경하고 새로운 버전 레코드를 생성합니다.
+      tags:
+        - Emissions Management
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - id
+                - newValue
+                - remarks
+              properties:
+                id:
+                  type: string
+                  description: 업데이트할 계수 ID
+                newValue:
+                  type: number
+                  description: 새로운 계수값
+                remarks:
+                  type: string
+                  description: 변경 사유 (필수)
+      responses:
+        '200':
+          description: 업데이트 성공
+    post:
+      summary: 모든 배출 계수 초기화 (Reset)
+      description: 모든 배출 계수를 최초 등록 시점(v1)의 값으로 되돌립니다.
+      tags:
+        - Emissions Management
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - action
+              properties:
+                action:
+                  type: string
+                  enum: [reset]
+      responses:
+        '200':
+          description: 초기화 성공
+
+  /import:
+    post:
+      summary: 엑셀 데이터 대량 임포트
+      description: 엑셀이나 구글 시트에서 추출된 JSON 배열 데이터를 받아 배출량을 계산하고 저장합니다.
+      tags:
+        - Data Management
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: object
+      responses:
+        '200':
+          description: 임포트 성공
+
+  /import/clear:
+    delete:
+      summary: 모든 활동 데이터 초기화
+      description: 사용자가 등록한 모든 활동 데이터(GhgEmission)와 제품 정보를 삭제합니다. (기초 수치는 보존)
+      tags:
+        - Data Management
+      responses:
+        '200':
+          description: 데이터 삭제 성공
+
+components:
+  schemas:
+    EmissionFactor:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        category:
+          type: string
+        currentValue:
+          type: number
+        unit:
+          type: string
+    
+    EmissionFactorWithVersions:
+      allOf:
+        - $ref: '#/components/schemas/EmissionFactor'
+        - type: object
+          properties:
+            versions:
+              type: array
+              items:
+                type: object
+                properties:
+                  versionNumber:
+                    type: integer
+                  value:
+                    type: number
+                  remarks:
+                    type: string
+                  createdAt:
+                    type: string
+                    format: date-time
+
+    Product:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        sku:
+          type: string
+          nullable: true
+
+    GhgEmission:
+      type: object
+      properties:
+        id:
+          type: integer
+        yearMonth:
+          type: string
+        emissions:
+          type: number
+        activityValue:
+          type: number
+        unit:
+          type: string
+        category:
+          type: string
+        scope:
+          type: string
+        lifecycleStage:
+          type: string
+        source:
+          type: string
