@@ -16,11 +16,14 @@ cd hanaloop_task/hanaloop
 # 2. 컨테이너 빌드 및 실행 (DB 포함)
 docker-compose up -d
 
-# 3. 데이터베이스 초기화 및 기초 수치(Seed) 주입
+# 3. .env 설정 (DATABASE_URL 입력)
+# DATABASE_URL="postgresql://postgres:postgres@localhost:5432/postgres?schema=public"
+
+# 4. 데이터베이스 초기화 및 기초 수치(Seed) 주입
 npx prisma migrate dev --name init
 npx prisma db seed
 
-# 4. 접속
+# 5. 접속
 # http://localhost:3000
 ```
 
@@ -33,7 +36,7 @@ _필요 조건: Node.js 20+, PostgreSQL_
 npm install
 
 # 2. .env 설정 (DATABASE_URL 입력)
-# 예: DATABASE_URL="postgresql://postgres:postgres@localhost:5432/postgres?schema=public"
+# DATABASE_URL="postgresql://postgres:postgres@localhost:5432/postgres?schema=public"
 
 # 3. Prisma 설정
 npx prisma migrate dev
